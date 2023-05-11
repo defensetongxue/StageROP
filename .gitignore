@@ -1,0 +1,10 @@
+__pycache__
+*.pth
+*.pt
+experiments
+checkpoints
+*.ipynb
+json_src
+*.ipynb
+SamModule/checkpoint
+tmp.*
