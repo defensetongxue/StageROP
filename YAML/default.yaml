@@ -20,7 +20,7 @@ TRAIN:
   OPTIMIZER: 'adam'
   LR: 0.0001
   WD: 0.0
-  LR_STEP: [25, 40]
+  LR_STEP: [15, 40]
   MOMENTUM: 0.0
   NESTEROV: false
 TEST:

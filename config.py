@@ -80,11 +80,11 @@ def get_config():
     # cleansing
     parser.add_argument('--path_tar', type=str, default='../autodl-tmp/dataset_ROP',
                         help='Path to the target folder to store the processed datasets.')
-    parser.add_argument('--crop_width', type=int, default=224,
+    parser.add_argument('--crop_width', type=int, default=100,
                         help='crop width.')
     parser.add_argument('--norm_images_ratio', type=int, default=3,
                         help='norm_images_ratio.')
-    parser.add_argument('--crop_per_image', type=int, default=4,
+    parser.add_argument('--crop_per_image', type=int, default=8,
                         help='crop_per_image.')
     # Model
     parser.add_argument('--model', type=str, default='hrnet',
@@ -101,7 +101,11 @@ def get_config():
     # config file 
     parser.add_argument('--cfg', help='experiment configuration filename',
                         default="./YAML/default.yaml", type=str)
-    
+    # test
+    parser.add_argument('--test_crop_per_image', help='test_crop_per_image',
+                        default=6, type=int)
+    parser.add_argument('--test_crop_distance', help='test_crop_distance',
+                        default=20, type=int)
     args = parser.parse_args()
     # Merge args and config file 
     update_config(_C, args)

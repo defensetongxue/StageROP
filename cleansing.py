@@ -155,6 +155,8 @@ def generate_baseline_dataset(data_path,norm_images_ratio):
 
 if __name__=='__main__':
     from config import get_config
+    
     args=get_config()
+    print(f"crop width {args.crop_width}")
     generate_train_val_data(args.path_tar,args.crop_width,args.norm_images_ratio,args.crop_per_image)
     generate_baseline_dataset(args.path_tar,args.norm_images_ratio)

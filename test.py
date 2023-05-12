@@ -34,13 +34,13 @@ test_data_list=json.load(open(os.path.join(data_path, 'crop_ridge_annotations_ba
 
 
 # Create the visualizations directory if it doesn't exist
-crop_per_image=4
-crop_processer=RidgeLocateProcesser(crop_per_image,20)
+crop_per_image=args.test_crop_per_image
+crop_distance=args.test_crop_distance
+crop_processer=RidgeLocateProcesser(crop_per_image,crop_distance)
 all_targets = []
 all_outputs = []
 test_transforms=transforms.Compose([
                 ContrastEnhancement(),
-                transforms.Resize(args.configs.IMAGE_RESIZE),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.4623,0.3856,0.2822],
                                      std=[0.2527,0.1889,0.1334])
@@ -65,4 +65,5 @@ with torch.no_grad():
         all_targets.append(label)
         all_outputs.append(predict_labels_image)
 acc = accuracy_score(np.array(all_targets),np.array(all_outputs))
+print(f"crop_per_image: {crop_per_image} crop_distance: {crop_distance}")
 print(f"Finished testing! Test acc {acc:.4f}")
