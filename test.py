@@ -1,12 +1,14 @@
 import json
 import os
 import torch
-from torch.utils.data import DataLoader
+from cleansing import crop_square
+from torchvision import transforms
 from config import get_config
-from utils_ import crop_Dataset as CustomDatset
-from utils_ import decode_preds,visualize_and_save_landmarks,get_instance,ridge2json
+from utils_ import get_instance,ContrastEnhancement
 import models
-
+from sklearn.metrics import accuracy_score
+from ridgeLocateModule import RidgeLocateProcesser
+import numpy as np
 # Parse arguments
 args = get_config()
 
@@ -28,35 +30,39 @@ model.eval()
 
 # Create the dataset and data loader
 data_path=os.path.join(args.path_tar)
-test_dataset = CustomDatset(data_path,split='test')
-test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+test_data_list=json.load(open(os.path.join(data_path, 'crop_ridge_annotations_baseline', "test.json")))
+
+
 # Create the visualizations directory if it doesn't exist
-
-visual_dir = os.path.join(args.result_path, 'visual')
-os.makedirs(visual_dir, exist_ok=True)
-# Test the model and save visualizations
-test_ridge_json=[]
+crop_per_image=4
+crop_processer=RidgeLocateProcesser(crop_per_image,20)
+all_targets = []
+all_outputs = []
+test_transforms=transforms.Compose([
+                ContrastEnhancement(),
+                transforms.Resize(args.configs.IMAGE_RESIZE),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.4623,0.3856,0.2822],
+                                     std=[0.2527,0.1889,0.1334])
+            ])
 with torch.no_grad():
-    for inputs, targets,meta in test_loader:
-        inputs = inputs.to(device)
+    for test_data in test_data_list:
+        image_path=test_data['image_path']
+        label=test_data['class']
+        preds,maxvals=crop_processer(image_path)
+        cnt=0
+        predict_labels_image=0
+        for x,y in preds:
+            crop_image=crop_square(image_path,x=x,y=y,
+                        width=args.crop_width)
+            img=test_transforms(crop_image).to(device)
+            
+            outputs = model(img.unsqueeze(0))
+            probs = torch.softmax(outputs, dim=1)
+            predicted_labels = torch.argmax(outputs, dim=1).squeeze().cpu()
+            predict_labels_image=max(predict_labels_image,int(predicted_labels))
 
-        output = model(inputs)
-        score_map = output.data.cpu()
-        preds,maxval = decode_preds(score_map,visual_num=3)
-
-        # visualize_and_save_landmarks(...) the pred coordinates will
-        # be translate to origianl size to viusal in origianl images 
-        # rather than the one resized 
-        # the transformed preds will be returned
-        preds,maxval = visualize_and_save_landmarks(
-            image_path=meta[0],
-            image_resize=args.configs.IMAGE_RESIZE,
-            preds=preds,maxvals= maxval,
-            save_path=os.path.join(visual_dir,os.path.basename(meta[0])))
-        test_ridge_json.append(ridge2json(image_path=meta[0],preds=preds.tolist(),maxvals=maxval.tolist()))
-    
-
-with open(os.path.join(data_path,'ridge','predict.json'),'w') as f:
-    json.dump(test_ridge_json,f)
-
-print("Finished testing")
+        all_targets.append(label)
+        all_outputs.extend(predict_labels_image)
+acc = accuracy_score(np.array(all_targets),np.array(all_outputs))
+print(f"Finished testing! Test acc {acc:.4f}")
