@@ -29,7 +29,7 @@ class crop_Dataset(data.Dataset):
         if split=="train" or split== "augument":
             self.img_transform=transforms.Compose([
                 ContrastEnhancement(),
-                transforms.Resize(resize),
+                # transforms.Resize(resize),
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
                 Fix_RandomRotation(),
@@ -41,7 +41,7 @@ class crop_Dataset(data.Dataset):
         elif split=='val' or split=='test':
             self.img_transform=transforms.Compose([
                 ContrastEnhancement(),
-                transforms.Resize(resize),
+                # transforms.Resize(resize),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.4623,0.3856,0.2822],
                                      std=[0.2527,0.1889,0.1334])

@@ -1,5 +1,5 @@
 GPUS: (0,)
-WORKERS: 4
+WORKERS: 12
 PRINT_FREQ: 50
 NUM_CLASS: 3
 RESULT_PATH: './experiments'

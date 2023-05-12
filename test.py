@@ -63,6 +63,6 @@ with torch.no_grad():
             predict_labels_image=max(predict_labels_image,int(predicted_labels))
 
         all_targets.append(label)
-        all_outputs.extend(predict_labels_image)
+        all_outputs.append(predict_labels_image)
 acc = accuracy_score(np.array(all_targets),np.array(all_outputs))
 print(f"Finished testing! Test acc {acc:.4f}")
