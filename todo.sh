@@ -10,7 +10,7 @@ python -u test.py  --test_crop_per_image 10 --test_crop_distance 10
 python -u test.py  --test_crop_per_image 10 --test_crop_distance 20
 
 cd ../PerdictROP
-python -u train,.py
+python -u train.py
 python -u test.py
 cd ../StageROP 
 python -u ring.py
@@ -27,7 +27,7 @@ python -u test.py  --test_crop_per_image 10 --test_crop_distance 10
 python -u test.py  --test_crop_per_image 10 --test_crop_distance 20
 
 cd ../PerdictROP
-python -u train,.py
+python -u train.py
 python -u test.py
 cd ../StageROP 
 python -u ring.py
@@ -44,7 +44,7 @@ python -u test.py  --test_crop_per_image 10 --test_crop_distance 10
 python -u test.py  --test_crop_per_image 10 --test_crop_distance 20
 
 cd ../PerdictROP
-python -u train,.py
+python -u train.py
 python -u test.py
 cd ../StageROP 
 python -u ring.py
@@ -62,7 +62,7 @@ python -u test.py  --test_crop_per_image 10 --test_crop_distance 10
 python -u test.py  --test_crop_per_image 10 --test_crop_distance 20
 
 cd ../PerdictROP
-python -u train,.py
+python -u train.py
 python -u test.py
 cd ../StageROP 
 python -u ring.py
