@@ -27,27 +27,30 @@ if os.path.isfile(args.from_checkpoint):
     torch.load(args.from_checkpoint))
 
 # Creatr optimizer
-optimizer = get_optimizer(args.configs, model)
+# optimizer = get_optimizer(args.configs, model)
+
+from torch import optim
+optimizer=optim.Adam(model.parameters(),lr=0.0002)
 last_epoch = args.configs.TRAIN.BEGIN_EPOCH
-if isinstance(args.configs.TRAIN.LR_STEP, list):
-    lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, args.configs.TRAIN.LR_STEP,
-        args.configs.TRAIN.LR_FACTOR, last_epoch-1
-    )
-else:
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(
-        optimizer, args.configs.TRAIN.LR_STEP,
-        args.configs.TRAIN.LR_FACTOR, last_epoch-1
-    )
+# if isinstance(args.configs.TRAIN.LR_STEP, list):
+#     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
+#         optimizer, args.configs.TRAIN.LR_STEP,
+#         args.configs.TRAIN.LR_FACTOR, last_epoch-1
+#     )
+# else:
+#     lr_scheduler = torch.optim.lr_scheduler.StepLR(
+#         optimizer, args.configs.TRAIN.LR_STEP,
+#         args.configs.TRAIN.LR_FACTOR, last_epoch-1
+#     )
 
 # Load the datasets
 train_dataset=CustomDatset(args.path_tar,'train',resize=args.configs.IMAGE_RESIZE)
 val_dataset=CustomDatset(args.path_tar,'val',resize=args.configs.IMAGE_RESIZE)
 # Create the data loaders
 train_loader = DataLoader(train_dataset, batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
-                          shuffle=True, num_workers=4)
+                          shuffle=True, num_workers=12)
 val_loader = DataLoader(val_dataset, batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
-                        shuffle=False, num_workers=4)
+                        shuffle=False, num_workers=12)
 
 # Set up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -63,8 +66,8 @@ for epoch in range(last_epoch,total_epoches):
     train_loss = train_epoch(model, optimizer, train_loader, criterion, device)
     print(f"Epoch {epoch + 1}/{total_epoches}, Train Loss: {train_loss}")
 
-    val_loss = val_epoch(model, val_loader, criterion, device)
-    print(f"Epoch {epoch + 1}/{total_epoches}, Val Loss: {val_loss}")
+    val_loss ,acc= val_epoch(model, val_loader, criterion, device)
+    print(f"Epoch {epoch + 1}/{total_epoches}, Val Loss: {val_loss:.4f}, Acc: {acc:.4f}")
 
     # Early stopping
     if val_loss < best_val_loss:

@@ -80,9 +80,9 @@ def get_config():
     # cleansing
     parser.add_argument('--path_tar', type=str, default='../autodl-tmp/dataset_ROP',
                         help='Path to the target folder to store the processed datasets.')
-    parser.add_argument('--crop_width', type=int, default=100,
+    parser.add_argument('--crop_width', type=int, default=200,
                         help='crop width.')
-    parser.add_argument('--norm_images_ratio', type=int, default=3,
+    parser.add_argument('--norm_images_ratio', type=int, default=1,
                         help='norm_images_ratio.')
     parser.add_argument('--crop_per_image', type=int, default=8,
                         help='crop_per_image.')

@@ -34,8 +34,7 @@ class crop_Dataset(data.Dataset):
                 transforms.RandomVerticalFlip(),
                 Fix_RandomRotation(),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=[0.4623,0.3856,0.2822],
-                                     std=[0.2527,0.1889,0.1334])
+                transforms.Normalize(mean=[0.4485, 0.5278, 0.5477], std=[0.0910, 0.1079, 0.1301])
                 # the mean and std is calculate by rop1 13 samples
                 ])
         elif split=='val' or split=='test':
@@ -43,8 +42,7 @@ class crop_Dataset(data.Dataset):
                 ContrastEnhancement(),
                 # transforms.Resize(resize),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=[0.4623,0.3856,0.2822],
-                                     std=[0.2527,0.1889,0.1334])
+                transforms.Normalize(mean=[0.4485, 0.5278, 0.5477], std=[0.0910, 0.1079, 0.1301])
             ])
         else:
             raise ValueError(f"ilegal spilt : {split}")

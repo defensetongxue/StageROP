@@ -24,10 +24,12 @@ def train_epoch(model, optimizer, train_loader, loss_function, device):
 
 def val_epoch(model, val_loader, loss_function, device):
     model.eval()
+    correct_predictions = 0
+    total_predictions = 0
     running_loss = 0.0
 
     with torch.no_grad():
-        for inputs, targets,meta in val_loader:
+        for inputs, targets, meta in val_loader:
             inputs = inputs.to(device)
             targets = targets.to(device)
 
@@ -36,8 +38,13 @@ def val_epoch(model, val_loader, loss_function, device):
 
             running_loss += loss.item()
 
-    return running_loss / len(val_loader)
+            _, predicted = torch.max(outputs.data, 1)
+            total_predictions += targets.size(0)
+            correct_predictions += (predicted == targets).sum().item()
 
+    accuracy = correct_predictions / total_predictions * 100
+    avg_loss = running_loss / len(val_loader)
+    return avg_loss, accuracy
 
 def get_instance(module, class_name, *args, **kwargs):
     try:
@@ -131,3 +138,18 @@ def ridge2json(image_path,preds,maxvals):
 #     avg_loss = running_loss / len(val_loader)
 
 #     return avg_loss
+
+def sensitive_score(label,predict,data_list):
+    success_cnt=0
+    print("wrong_list")
+    ill_cnt=0
+    cnt=0
+    for i,j in zip(label,predict):
+        if i>0:
+            ill_cnt+=1
+            if j>0:
+                success_cnt+=1
+        if i!=j:
+            print(data_list[cnt])    
+        cnt+=1
+    return success_cnt/ill_cnt
