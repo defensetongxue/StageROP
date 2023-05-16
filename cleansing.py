@@ -21,7 +21,7 @@ def crop_square(img_path, x, y, width,save_path=None):
     
     return cropped_img
 
-def generate_crop_ridge_data(data_path,split='train',crop_width=200):
+def generate_crop_ridge_data(data_path,crop_processer,split='train',crop_width=200):
     with open(os.path.join(data_path,'ridge',f"{split}.json"),'r') as f:
         data=json.load(f)
     res_json=[]
@@ -29,34 +29,48 @@ def generate_crop_ridge_data(data_path,split='train',crop_width=200):
         cnt=0
         # if annote['class']!=1:
         #     continue
+        crop_from_path=os.path.join(data_path,'images',annote['image_name'])
         for coord in annote["ridge_coordinate"]:
             x,y=coord
             new_name=f"{annote['image_name'].split('.')[0]}_{cnt}.jpg"
-            crop_square(img_path=os.path.join(data_path,'images',annote['image_name']),x=x,y=y,
+            crop_square(img_path=crop_from_path,x=x,y=y,
                         width=crop_width,
                         save_path=os.path.join(
                 data_path,'crop_ridge_images',new_name))
             cnt+=1
             res_json.append({
                 "image_path":os.path.join(data_path,'crop_ridge_images',new_name),
-                "crop_from":os.path.join(data_path,'images',annote['image_name']),
+                "crop_from":crop_from_path,
                 "class":annote["class"]
             })
+
             if cnt>8:
                 break
+        preds,maxvals=crop_processer(crop_from_path)
+        for x,y in preds:
+            new_name=f"{annote['image_name'].split('.')[0]}_{str(cnt)}.jpg"
+            crop_square(img_path=crop_from_path,x=x,y=y,
+                        width=crop_width,
+                        save_path=os.path.join(
+                data_path,'crop_ridge_images',new_name))
+            cnt+=1
+            res_json.append({
+                "image_path":os.path.join(data_path,'crop_ridge_images',new_name),
+                "crop_from":crop_from_path,
+                "class":annote["class"]
+            })
     return res_json
 
 def generate_train_val_data(data_path,crop_width,norm_images_ratio=1,crop_per_image=4):
 
     os.makedirs(os.path.join(data_path,'crop_ridge_images'),exist_ok=True)
     os.system(f"rm -rf {os.path.join(data_path,'crop_ridge_images')}/*")
-
+    crop_processer=RidgeLocateProcesser(crop_per_image,100)
     # generate abnormal_class samples
-    train_annote=generate_crop_ridge_data(data_path,'train',crop_width)
-    val_annote=generate_crop_ridge_data(data_path,'val',crop_width)
+    train_annote=generate_crop_ridge_data(data_path,crop_processer,'train',crop_width)
+    val_annote=generate_crop_ridge_data(data_path,crop_processer,'val',crop_width)
 
     # generate norm_class samples
-    crop_processer=RidgeLocateProcesser(crop_per_image,100)
     with open(os.path.join(data_path, 'annotations', "train.json"),'r') as f:
         train_orignal_data=json.load(f)
     with open(os.path.join(data_path, 'annotations', "val.json"),'r') as f:

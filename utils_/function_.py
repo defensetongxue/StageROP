@@ -141,7 +141,7 @@ def ridge2json(image_path,preds,maxvals):
 
 def sensitive_score(label,predict,data_list):
     success_cnt=0
-    print("wrong_list")
+    # print("wrong_list")
     ill_cnt=0
     cnt=0
     for i,j in zip(label,predict):
@@ -149,7 +149,7 @@ def sensitive_score(label,predict,data_list):
             ill_cnt+=1
             if j>0:
                 success_cnt+=1
-        if i!=j:
-            print(data_list[cnt])    
+        # if i!=j:
+        #     print(data_list[cnt])    
         cnt+=1
     return success_cnt/ill_cnt
