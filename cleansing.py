@@ -27,8 +27,6 @@ def generate_crop_ridge_data(data_path,crop_processer,split='train',crop_width=2
     res_json=[]
     for annote in data:
         cnt=0
-        # if annote['class']!=1:
-        #     continue
         crop_from_path=os.path.join(data_path,'images',annote['image_name'])
         for coord in annote["ridge_coordinate"]:
             x,y=coord
@@ -61,11 +59,13 @@ def generate_crop_ridge_data(data_path,crop_processer,split='train',crop_width=2
             })
     return res_json
 
-def generate_train_val_data(data_path,crop_width,norm_images_ratio=1,crop_per_image=4):
+def generate_train_val_data(data_path,crop_width,norm_images_ratio=1,crop_per_image=4,crop_distance=100):
 
     os.makedirs(os.path.join(data_path,'crop_ridge_images'),exist_ok=True)
-    os.system(f"rm -rf {os.path.join(data_path,'crop_ridge_images')}/*")
-    crop_processer=RidgeLocateProcesser(crop_per_image,100)
+    # os.system(f"rm -rf {os.path.join(data_path,'crop_ridge_images')}/*")
+    os.system(f"find {os.path.join(data_path,'crop_ridge_images')} -type f -delete")
+    crop_processer=RidgeLocateProcesser(crop_per_image,crop_distance)
+
     # generate abnormal_class samples
     train_annote=generate_crop_ridge_data(data_path,crop_processer,'train',crop_width)
     val_annote=generate_crop_ridge_data(data_path,crop_processer,'val',crop_width)
@@ -78,9 +78,9 @@ def generate_train_val_data(data_path,crop_width,norm_images_ratio=1,crop_per_im
     train_norm_data=[i for i in train_orignal_data if i['class']==0]
     val_norm_data=[i for i in val_orignal_data if i['class']==0]
     train_norm_data=random.sample(
-        train_norm_data,min(len(train_norm_data)-5,int(len(train_annote)*norm_images_ratio/crop_per_image)))
+        train_norm_data,min(len(train_norm_data)-1,int(len(train_annote)*norm_images_ratio/crop_per_image)))
     val_norm_data=random.sample(
-        val_norm_data,min(len(val_norm_data)-5,int(len(val_annote)*norm_images_ratio/crop_per_image)))
+        val_norm_data,min(len(val_norm_data)-1,int(len(val_annote)*norm_images_ratio/crop_per_image)))
 
     for data in train_norm_data:
         preds,maxvals=crop_processer(data['image_path'])
@@ -170,6 +170,18 @@ def generate_baseline_dataset(data_path,norm_images_ratio):
         })
     with open(os.path.join(data_path,'crop_ridge_annotations_baseline','test.json'),'w') as f:
         json.dump(test_annote,f)
+        
+def generate_heatmap(data_path):
+    os.makedirs(os.path.join(data_path,'ridge_heatmap'))
+    os.system(f"find {os.path.join(data_path,'ridge_heatmap')} -type f -delete")
+    image_dict=os.path.join(data_path,'images')
+    image_list=os.listdir(image_dict)
+    processer=RidgeLocateProcesser()
+
+    print(f"Gegin generating heatmap for all the image in {os.path.join(data_path,'images')}")
+    for image_name in image_list:
+        image_path=os.path.join(image_dict,image_name)
+        processer.generate_heatmap(image_path,save_path=os.path.join(data_path,'ridge_heatmap'))
 
 if __name__=='__main__':
     from config import get_config

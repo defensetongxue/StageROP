@@ -56,7 +56,15 @@ class RidgeLocateProcesser():
                 "maxvals":maxvals
             },f)
         return preds,maxvals
-    
+    def generate_heatmap(self,img_path,save_path=None):
+        img = Image.open(img_path).convert('RGB')
+        img=self.transforms(img).unsqueeze(0)
+        
+        output=self.model(img.cuda())
+        score_map = output.data.cpu()
+        if save_path:
+            torch.save(score_map,save_path)
+            
 class ContrastEnhancement:
     def __init__(self, factor=1.5):
         self.factor = factor
