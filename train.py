@@ -21,53 +21,57 @@ model = get_instance(models, args.configs.MODEL.NAME,args.configs,
                          num_classes=args.configs.NUM_CLASS)
 criterion=torch.nn.CrossEntropyLoss()
 
+# Set up the device
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = model.to(device)
+print(f"using {device} for training")
+
+# early stopping
+early_stop_counter = 0
+
 if os.path.isfile(args.from_checkpoint):
     print(f"loadding the exit checkpoints {args.from_checkpoint}")
     model.load_state_dict(
     torch.load(args.from_checkpoint))
 
 # Creatr optimizer
-# optimizer = get_optimizer(args.configs, model)
+model.train()
+optimizer = get_optimizer(args.configs, model)
 
-from torch import optim
-optimizer=optim.Adam(model.parameters(),lr=0.0002)
+# from torch import optim
+# optimizer=optim.Adam(model.parameters(),lr=0.0002)
 last_epoch = args.configs.TRAIN.BEGIN_EPOCH
-# if isinstance(args.configs.TRAIN.LR_STEP, list):
-#     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
-#         optimizer, args.configs.TRAIN.LR_STEP,
-#         args.configs.TRAIN.LR_FACTOR, last_epoch-1
-#     )
-# else:
-#     lr_scheduler = torch.optim.lr_scheduler.StepLR(
-#         optimizer, args.configs.TRAIN.LR_STEP,
-#         args.configs.TRAIN.LR_FACTOR, last_epoch-1
-#     )
+if isinstance(args.configs.TRAIN.LR_STEP, list):
+    lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        optimizer, args.configs.TRAIN.LR_STEP,
+        args.configs.TRAIN.LR_FACTOR, last_epoch-1
+    )
+else:
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(
+        optimizer, args.configs.TRAIN.LR_STEP,
+        args.configs.TRAIN.LR_FACTOR, last_epoch-1
+    )
 
 # Load the datasets
 train_dataset=CustomDatset(args.path_tar,'train',resize=args.configs.IMAGE_RESIZE)
 val_dataset=CustomDatset(args.path_tar,'val',resize=args.configs.IMAGE_RESIZE)
 # Create the data loaders
 train_loader = DataLoader(train_dataset, batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
-                          shuffle=True, num_workers=12)
+                          shuffle=True, num_workers=args.configs.WORKERS)
 val_loader = DataLoader(val_dataset, batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
-                        shuffle=False, num_workers=12)
+                        shuffle=False, num_workers=args.configs.WORKERS)
 
-# Set up the device
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = model.to(device)
-print(f"using {device} for training")
-# Set up the optimizer, loss function, and early stopping
-
-early_stop_counter = 0
 best_val_loss = float('inf')
 total_epoches=args.configs.TRAIN.END_EPOCH
 # Training and validation loop
 for epoch in range(last_epoch,total_epoches):
     train_loss = train_epoch(model, optimizer, train_loader, criterion, device)
-    print(f"Epoch {epoch + 1}/{total_epoches}, Train Loss: {train_loss}")
+    lr_scheduler.step()
 
     val_loss ,acc= val_epoch(model, val_loader, criterion, device)
-    print(f"Epoch {epoch + 1}/{total_epoches}, Val Loss: {val_loss:.4f}, Acc: {acc:.4f}")
+    print(f"Epoch {epoch + 1}/{total_epoches}, Train Loss: {train_loss:.6f},"
+          f" Val Loss: {val_loss:.6f}, Acc: {acc:.4f}"
+          f" Lr: {optimizer.state_dict()['param_groups'][0]['lr']:.6f}")
 
     # Early stopping
     if val_loss < best_val_loss:

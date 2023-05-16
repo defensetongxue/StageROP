@@ -18,7 +18,7 @@ TRAIN:
   END_EPOCH: 500
   EARLY_STOP: 30
   OPTIMIZER: 'adam'
-  LR: 0.005
+  LR: 0.0002
   WD: 0.0
   LR_STEP: [25, 45]
   MOMENTUM: 0.0
