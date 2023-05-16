@@ -30,7 +30,7 @@ if os.path.isfile(args.from_checkpoint):
 # optimizer = get_optimizer(args.configs, model)
 
 from torch import optim
-optimizer=optim.Adam(model.parameters(),lr=0.0002)
+optimizer=optim.Adam(model.parameters(),lr=0.0001)
 last_epoch = args.configs.TRAIN.BEGIN_EPOCH
 # if isinstance(args.configs.TRAIN.LR_STEP, list):
 #     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(

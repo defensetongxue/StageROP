@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 from .model_config import get_model_config
 import math
 import json
-
+import numpy as np
 class RidgeLocateProcesser():
     def __init__(self,select_number=3,region_width=4):
         config=get_model_config()
@@ -43,8 +43,12 @@ class RidgeLocateProcesser():
         if isinstance(maxvals, torch.Tensor):
             maxvals = maxvals.squeeze().numpy()
         # Draw landmarks on the image
+        preds=np.array(preds)
+        if len(preds.shape)<=1:
+            preds=preds.reshape(1,-1)
         preds[:,0]*=self.w_r
         preds[:,1]*=self.h_r
+        
         if save_path:
             with open(save_path,'w') as f:
                 json.dump({

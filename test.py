@@ -30,7 +30,7 @@ def visualize_and_save_landmarks(image_path,
             cv2.putText(img, f"{maxval:.2f}", (int(x), int(y)), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         cv2.putText(img, f"{cnt}", (int(x), int(y)), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
         cnt+=1
     # Save the image with landmarks
     cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
@@ -87,7 +87,6 @@ with torch.no_grad():
                         # save_path='./experiments/crop/'+os.path.basename(image_path).split('.')[0]+f'_{str(cnt)}.jpg'
                         )
             img=test_transforms(crop_image).to(device)
-            
             outputs = model(img.unsqueeze(0))
             probs = torch.softmax(outputs, dim=1)
             predicted_labels = torch.argmax(outputs, dim=1).squeeze().cpu()
@@ -95,7 +94,6 @@ with torch.no_grad():
             cnt+=1
         all_targets.append(label)
         all_outputs.append(predict_labels_image)
-
 acc = accuracy_score(np.array(all_targets),np.array(all_outputs))
 sens=sensitive_score(all_targets,all_outputs,test_data_list)
 print(f"crop_per_image: {crop_per_image} crop_distance: {crop_distance}")
