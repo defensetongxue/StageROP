@@ -46,7 +46,7 @@ print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
 model = get_instance(models, args.configs.MODEL.NAME,args.configs,
-                         num_classes=args.configs.NUM_CLASS)
+                         num_classes=args.configs.NUM_CLASS,mode=args.model_mode)
 criterion=torch.nn.CrossEntropyLoss()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)

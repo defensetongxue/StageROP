@@ -1,7 +1,8 @@
 import torch
 from torch.utils.data import DataLoader
 from config import get_config
-from utils_ import get_instance, train_epoch, val_epoch,get_optimizer,crop_Dataset as CustomDatset
+from utils_ import get_instance,get_optimizer,both_Dataset as CustomDatset
+import utils_
 import models
 import os
 # Initialize the folder
@@ -10,7 +11,6 @@ os.makedirs("experiments",exist_ok=True)
 
 # Parse arguments
 args = get_config()
-
 # Init the result file to store the pytorch model and other mid-result
 result_path = args.result_path
 os.makedirs(result_path,exist_ok=True)
@@ -18,9 +18,12 @@ print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
 model = get_instance(models, args.configs.MODEL.NAME,args.configs,
-                         num_classes=args.configs.NUM_CLASS)
+                         num_classes=args.configs.NUM_CLASS,mode=args.model_mode)
 criterion=torch.nn.CrossEntropyLoss()
-
+if args.configs.MODEL.NAME =='inceptionv3':
+    from utils_ import train_epoch_inception as train_epoch,val_epoch_inception as val_epoch
+else:
+    from utils_ import train_epoch,val_epoch
 # Set up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)
@@ -53,8 +56,8 @@ else:
     )
 
 # Load the datasets
-train_dataset=CustomDatset(args.path_tar,'train',resize=args.configs.IMAGE_RESIZE)
-val_dataset=CustomDatset(args.path_tar,'val',resize=args.configs.IMAGE_RESIZE)
+train_dataset=get_instance(utils_,f"{args.model_mode}_Dataset",args.path_tar,'train')
+val_dataset=get_instance(utils_,f"{args.model_mode}_Dataset",args.path_tar,'val')
 # Create the data loaders
 train_loader = DataLoader(train_dataset, batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
                           shuffle=True, num_workers=args.configs.WORKERS)

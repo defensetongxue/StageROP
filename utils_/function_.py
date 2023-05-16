@@ -8,7 +8,10 @@ def train_epoch(model, optimizer, train_loader, loss_function, device):
     running_loss = 0.0
 
     for inputs, targets,meta in train_loader:
-        inputs = inputs.to(device)
+        if isinstance(inputs,list):
+            inputs=[i.to(device) for i in inputs]
+        else:
+            inputs = inputs.to(device)
         targets = targets.to(device)
 
         optimizer.zero_grad()
@@ -30,7 +33,10 @@ def val_epoch(model, val_loader, loss_function, device):
 
     with torch.no_grad():
         for inputs, targets, meta in val_loader:
-            inputs = inputs.to(device)
+            if isinstance(inputs,list):
+                inputs=[i.to(device) for i in inputs]
+            else:
+                inputs = inputs.to(device)
             targets = targets.to(device)
 
             outputs = model(inputs)
@@ -91,53 +97,59 @@ def ridge2json(image_path,preds,maxvals):
         "score":maxvals
     }
 
-# def train_epoch(model, optimizer, train_loader, loss_function, device):
-#     model.train()
-#     running_loss = 0.0
+def train_epoch_inception(model, optimizer, train_loader, loss_function, device):
+    model.train()
+    running_loss = 0.0
 
-#     for inputs, targets,meta in train_loader:
-#         inputs = inputs.to(device)
-#         targets = targets.to(device)
+    for inputs, targets,meta in train_loader:
+        if isinstance(inputs,list):
+            inputs=[i.to(device) for i in inputs]
+        else:
+            inputs = inputs.to(device)
+        targets = targets.to(device)
 
-#         optimizer.zero_grad()
+        optimizer.zero_grad()
 
-#         outputs,aux_logit = model(inputs)
-#         loss = loss_function(outputs, targets)+ \
-#             loss_function(aux_logit,targets)
+        outputs,aux_logit = model(inputs)
+        loss = loss_function(outputs, targets)+ \
+            loss_function(aux_logit,targets)
 
-#         loss.backward()
-#         optimizer.step()
+        loss.backward()
+        optimizer.step()
 
-#         running_loss += loss.item()
-#     return running_loss / len(train_loader)
+        running_loss += loss.item()
+    return running_loss / len(train_loader)
 
-# def val_epoch(model, val_loader, loss_function, device):
-#     model.eval()
-#     running_loss = 0.0
-#     all_targets = []
-#     all_outputs = []
-#     all_probs = []
+def val_epoch_inception(model, val_loader, loss_function, device):
+    model.eval()
+    running_loss = 0.0
+    all_targets = []
+    all_outputs = []
+    all_probs = []
 
-#     with torch.no_grad():
-#         for inputs, targets, meta in val_loader:
-#             inputs = inputs.to(device)
-#             targets = targets.to(device)
+    with torch.no_grad():
+        for inputs, targets, meta in val_loader:
+            if isinstance(inputs,list):
+                inputs=[i.to(device) for i in inputs]
+            else:
+                inputs = inputs.to(device)
+            targets = targets.to(device)
 
-#             outputs = model(inputs)
-#             probs = torch.softmax(outputs, dim=1)
-#             predicted_labels = torch.argmax(outputs, dim=1)
+            outputs = model(inputs)
+            probs = torch.softmax(outputs, dim=1)
+            predicted_labels = torch.argmax(outputs, dim=1)
 
-#             loss = loss_function(outputs, targets)
+            loss = loss_function(outputs, targets)
 
-#             running_loss += loss.item()
+            running_loss += loss.item()
 
-#             all_targets.extend(targets.cpu().numpy())
-#             all_outputs.extend(predicted_labels.cpu().numpy())
-#             all_probs.extend(probs.cpu().numpy())
+            all_targets.extend(targets.cpu().numpy())
+            all_outputs.extend(predicted_labels.cpu().numpy())
+            all_probs.extend(probs.cpu().numpy())
 
-#     avg_loss = running_loss / len(val_loader)
+    avg_loss = running_loss / len(val_loader)
 
-#     return avg_loss
+    return avg_loss
 
 def sensitive_score(label,predict,data_list):
     success_cnt=0

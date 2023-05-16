@@ -83,12 +83,11 @@ def get_config():
                         help='crop width.')
     parser.add_argument('--norm_images_ratio', type=int, default=1,
                         help='norm_images_ratio.')
-    parser.add_argument('--crop_per_image', type=int, default=16,
+    parser.add_argument('--crop_per_image', type=int, default=8,
                         help='crop_per_image.')
     # Model
-    parser.add_argument('--model', type=str, default='hrnet',
-                        help='Name of the model architecture to be used for training.')
-    
+    parser.add_argument('--model_mode', type=str, default="both",
+                        help='Path to the source folder containing original datasets.')
     # train and test
     parser.add_argument('--save_name', type=str, default="./checkpoints/best.pth",
                         help='Name of the file to save the best model during training.')
@@ -99,12 +98,12 @@ def get_config():
     
     # config file 
     parser.add_argument('--cfg', help='experiment configuration filename',
-                        default="./YAML/default.yaml", type=str)
+                        default="./YAML/vgg16.yaml", type=str)
     # test
     parser.add_argument('--test_crop_per_image', help='test_crop_per_image',
                         default=8, type=int)
     parser.add_argument('--test_crop_distance', help='test_crop_distance',
-                        default=15, type=int)
+                        default=20, type=int)
     args = parser.parse_args()
     # Merge args and config file 
     update_config(_C, args)

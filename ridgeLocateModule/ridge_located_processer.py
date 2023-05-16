@@ -61,7 +61,7 @@ class RidgeLocateProcesser():
         img=self.transforms(img).unsqueeze(0)
         
         output=self.model(img.cuda())
-        score_map = output.data.cpu()
+        score_map = output.data.squeeze().cpu()
         if save_path:
             torch.save(score_map,save_path)
             

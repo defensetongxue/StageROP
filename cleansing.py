@@ -21,7 +21,7 @@ def crop_square(img_path, x, y, width,save_path=None):
     
     return cropped_img
 
-def generate_crop_ridge_data(data_path,crop_processer,split='train',crop_width=200):
+def generate_crop_ridge_data(data_path,crop_processer,split='train',crop_width=200,original_limit=10):
     with open(os.path.join(data_path,'ridge',f"{split}.json"),'r') as f:
         data=json.load(f)
     res_json=[]
@@ -42,7 +42,7 @@ def generate_crop_ridge_data(data_path,crop_processer,split='train',crop_width=2
                 "class":annote["class"]
             })
 
-            if cnt>8:
+            if cnt>original_limit:
                 break
         preds,maxvals=crop_processer(crop_from_path)
         for x,y in preds:
@@ -122,7 +122,11 @@ def generate_train_val_data(data_path,crop_width,norm_images_ratio=1,crop_per_im
         json.dump(train_annote,f)
     with open(os.path.join(data_path,'crop_ridge_annotations','val.json'),'w') as f:
         json.dump(val_annote,f)
-
+def get_condition(data_list):
+    condition={'0':0,"1":0,"2":0,"3":0}
+    for data in data_list:
+        condition[str(data['class'])]+=1
+    return condition
 def generate_baseline_dataset(data_path,norm_images_ratio):
     os.makedirs(os.path.join(data_path,'crop_ridge_annotations_baseline'),exist_ok=True)
     os.system(f"rm -rf {os.path.join(data_path,'crop_ridge_annotations_baseline')}/*")
@@ -135,10 +139,10 @@ def generate_baseline_dataset(data_path,norm_images_ratio):
     train_image_path_list=list(crop_from_dict.values())
 
     with open(os.path.join(data_path,'crop_ridge_annotations','val.json'),'r') as f:
-        train_annote=json.load(f)
+        val_annote=json.load(f)
     # Use a dict to remove duplicates based on the 'crop_from' key
     crop_from_dict = {item['crop_from']: {"class": item["class"],"image_path":item["crop_from"]} 
-                      for item in train_annote}
+                      for item in val_annote}
     val_image_path_list=list(crop_from_dict.values())
 
     with open(os.path.join(data_path,'crop_ridge_annotations_baseline','train.json'),'w') as f:
@@ -170,7 +174,10 @@ def generate_baseline_dataset(data_path,norm_images_ratio):
         })
     with open(os.path.join(data_path,'crop_ridge_annotations_baseline','test.json'),'w') as f:
         json.dump(test_annote,f)
-        
+    print(f"Train Condition {get_condition(train_image_path_list)}")
+    print(f"Val Condition: {get_condition(val_image_path_list)}")
+    print(f"Test Condition: {get_condition(test_annote)}")
+
 def generate_heatmap(data_path):
     os.makedirs(os.path.join(data_path,'ridge_heatmap'))
     os.system(f"find {os.path.join(data_path,'ridge_heatmap')} -type f -delete")
@@ -181,8 +188,9 @@ def generate_heatmap(data_path):
     print(f"Gegin generating heatmap for all the image in {os.path.join(data_path,'images')}")
     for image_name in image_list:
         image_path=os.path.join(image_dict,image_name)
-        processer.generate_heatmap(image_path,save_path=os.path.join(data_path,'ridge_heatmap'))
-
+        processer.generate_heatmap(image_path,save_path=os.path.join(
+            data_path,'ridge_heatmap',image_name.split('.')[0]+'.pt'))
+            
 if __name__=='__main__':
     from config import get_config
     
@@ -190,3 +198,4 @@ if __name__=='__main__':
     print(f"crop width {args.crop_width}")
     generate_train_val_data(args.path_tar,args.crop_width,args.norm_images_ratio,args.crop_per_image)
     generate_baseline_dataset(args.path_tar,args.norm_images_ratio)
+    generate_heatmap(args.path_tar)

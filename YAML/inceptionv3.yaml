@@ -1,7 +1,7 @@
 GPUS: (0,)
 WORKERS: 12
 PRINT_FREQ: 50
-NUM_CLASS: 3
+NUM_CLASS: 4
 RESULT_PATH: './experiments'
 IMAGE_RESIZE:
   - 200
@@ -10,7 +10,7 @@ IMAGE_SIZE:
   - 1600
   - 1200
 MODEL:
-  NAME: 'vgg'
+  NAME: 'inceptionv3'
 TRAIN:
   BATCH_SIZE_PER_GPU: 128
   SHUFFLE: true
