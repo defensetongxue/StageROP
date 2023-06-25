@@ -165,3 +165,20 @@ def sensitive_score(label,predict,data_list):
         #     print(data_list[cnt])    
         cnt+=1
     return success_cnt/ill_cnt
+
+def crop_square(img_path, x, y, width,save_path=None):
+    # Open the image file
+    img = Image.open(img_path)
+
+    # Calculate the top left and bottom right points of the square to be cropped
+    left = x - width//2
+    top = y - width//2
+    right = left + width
+    bottom = top + width
+
+    # Crop the image and save it
+    cropped_img = img.crop((left, top, right, bottom))
+    if save_path:
+        cropped_img.save(save_path)
+    
+    return cropped_img

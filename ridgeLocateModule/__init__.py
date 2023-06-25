@@ -1,1 +1,0 @@
-from .ridge_located_processer import RidgeLocateProcesser

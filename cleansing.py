@@ -4,22 +4,6 @@ from ridgeLocateModule import RidgeLocateProcesser
 from PIL import Image
 import random 
 
-def crop_square(img_path, x, y, width,save_path=None):
-    # Open the image file
-    img = Image.open(img_path)
-
-    # Calculate the top left and bottom right points of the square to be cropped
-    left = x - width//2
-    top = y - width//2
-    right = left + width
-    bottom = top + width
-
-    # Crop the image and save it
-    cropped_img = img.crop((left, top, right, bottom))
-    if save_path:
-        cropped_img.save(save_path)
-    
-    return cropped_img
 
 def generate_crop_ridge_data(data_path,crop_processer,split='train',crop_width=200,original_limit=10):
     with open(os.path.join(data_path,'ridge',f"{split}.json"),'r') as f:
