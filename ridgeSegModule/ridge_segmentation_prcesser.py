@@ -48,14 +48,14 @@ class ridge_segmentation_processer():
             transforms.Normalize(
                 mean=[0.4623, 0.3856, 0.2822],
                 std=[0.2527, 0.1889, 0.1334])])
-    def __call__(self,img_path,save_path=None):
+    def __call__(self,img_path,mask_save_path=None):
         img=Image.open(img_path)
         img=self.img_transforms(img).unsqueeze(0) # build batch as 1
         mask=self.model(img.cuda()).cpu()
         mask=torch.sigmoid(mask).numpy()
         mask=zoom(mask,2)
-        if save_path:
-            torch.save(mask,save_path)
+        if mask_save_path:
+            torch.save(mask,mask_save_path)
         if self.mode=='point':
             maxvals_list, preds_list=k_max_values_and_indices(
                 mask,self.point_number,self.point_dis)
