@@ -2,7 +2,7 @@ import torch
 import inspect
 from torch import optim
 import numpy as np
-
+from PIL import Image
 def train_epoch(model, optimizer, train_loader, loss_function, device):
     model.train()
     running_loss = 0.0
