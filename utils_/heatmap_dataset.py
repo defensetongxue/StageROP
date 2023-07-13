@@ -1,5 +1,6 @@
 import torch.utils.data as data
 from PIL import Image,ImageEnhance  
+import torch.nn.functional as F
 import os
 import os.path
 import torch
@@ -21,12 +22,13 @@ class heatmap_Dataset(data.Dataset):
                 └───valid.json
                 └───test.json
     '''
-    def __init__(self, data_path,split='train',resize=(800,800)):
+    def __init__(self, data_path,split='train',resize=(256,256)):
 
         
         self.annotations = json.load(open(os.path.join(data_path, 
-                                                       'crop_ridge_annotations', f"{split}.json")))
-        self.heatmap_dict=os.path.join(data_path,'ridge_heatmap')
+                                                       'ridge_points', f"{split}.json")))
+        self.resize=resize
+
         if split=="train" or split== "augument":
             self.heatmap_transform=transforms.Compose([
                     TensorhortonFlip(),
@@ -46,19 +48,27 @@ class heatmap_Dataset(data.Dataset):
     def __getitem__(self, idx):
         '''
         The json format is
-        ({
-                "image_path":...,
-                "crop_from":...,
-                "class":...
-            })
+        {
+            'image_name':os.path.basename(img_path),
+            'image_path':img_path,
+            'point_number':self.point_number,
+            'heatmap_path':save_path,
+            'ridge':[{
+                'coordinate':preds_list[i],
+                'value':maxvals_list[i]
+            } for i in range(len(maxvals_list))]
+        }
         '''
         # Load the image and label
         annotation = self.annotations[idx]
-        image_name= os.path.basename(annotation['crop_from'])
-        heatmap=torch.load(os.path.join(self.heatmap_dict,image_name.split('.')[0]+'.pt'))
+        heatmap=torch.load(annotation['heatmap_path'])
         label=annotation['class']
 
         # Transforms the image
+        heatmap=F.interpolate(heatmap[None,None,:,:]
+                              ,size=self.resize,
+                                mode='bilinear',
+                                  align_corners=False).squeeze()
         heatmap=self.heatmap_transform(heatmap)
         # Store esscencial data for visualization (Gram)
         meta={}

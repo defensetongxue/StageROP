@@ -81,12 +81,10 @@ def get_config():
                         help='Path to the target folder to store the processed datasets.')
     parser.add_argument('--crop_width', type=int, default=100,
                         help='crop width.')
-    parser.add_argument('--norm_images_ratio', type=int, default=1,
-                        help='norm_images_ratio.')
     parser.add_argument('--crop_per_image', type=int, default=8,
                         help='crop_per_image.')
     # Model
-    parser.add_argument('--model_mode', type=str, default="both",
+    parser.add_argument('--model_mode', type=str, default="heatmap",
                         help='Path to the source folder containing original datasets.')
     # train and test
     parser.add_argument('--save_name', type=str, default="./checkpoints/best.pth",
