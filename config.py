@@ -83,7 +83,9 @@ def get_config():
                         help='crop width.')
     parser.add_argument('--crop_per_image', type=int, default=8,
                         help='crop_per_image.')
-    parser.add_argument('--generate_vessel', type=bool, default=True,
+    parser.add_argument('--generate_vessel', type=bool, default=False,
+                        help='if generate vesel.')
+    parser.add_argument('--generate_ridge', type=bool, default=False,
                         help='if generate vesel.')
     # Model
     parser.add_argument('--model_mode', type=str, default="heatmap",
