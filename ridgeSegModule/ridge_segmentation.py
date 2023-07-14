@@ -16,7 +16,7 @@ def generate_ridge(data_path):
             _,annotes=processer(data['image_path'],
                                 class_=data['class'],
                                 save_path=os.path.join(
-                data_path,'ridge_mask',data['image_name'].split('.')[0]+'.pt'))
+                data_path,'ridge_mask',data['image_name']))
             annotation_res.append(annotes)
         with open(os.path.join(data_path,'ridge_points',f'{split}.json'),'w') as f:
             json.dump(annotation_res,f)

@@ -3,6 +3,8 @@ import inspect
 from torch import optim
 import numpy as np
 from PIL import Image
+from scipy.spatial import distance
+import cv2
 def train_epoch(model, optimizer, train_loader, loss_function, device):
     model.train()
     running_loss = 0.0
@@ -166,15 +168,26 @@ def sensitive_score(label,predict,data_list):
         cnt+=1
     return success_cnt/ill_cnt
 
-def crop_square(img_path, x, y, width,save_path=None):
+def crop_square(img_path, x, y, width, visual_path=None, save_path=None):
     # Open the image file
     img = Image.open(img_path)
-
+    x,y=int(x),int(y)
     # Calculate the top left and bottom right points of the square to be cropped
-    left = x - width//2
-    top = y - width//2
-    right = left + width
-    bottom = top + width
+    left = x - width
+    top = y - width
+    right = x + width
+    bottom = y + width
+
+    # Convert image to OpenCV format (numpy array) for visualization
+    img_cv = np.array(img)
+
+    # Draw a point at (x, y)
+    img_cv = cv2.circle(img_cv, (x, y), radius=0, color=(0, 0, 255), thickness=-1)  # Red point
+
+    # Convert back to PIL format and save visualized image
+    if visual_path:
+        visual_img = Image.fromarray(img_cv)
+        visual_img.save(visual_path)
 
     # Crop the image and save it
     cropped_img = img.crop((left, top, right, bottom))
@@ -182,3 +195,22 @@ def crop_square(img_path, x, y, width,save_path=None):
         cropped_img.save(save_path)
     
     return cropped_img
+
+def closest_points(ridge_list,vessel_list):
+    array1=np.array(ridge_list)
+    array2=np.array(vessel_list)
+    # Compute the distance between each pair of points
+    distances = distance.cdist(array1, array2, 'euclidean')
+
+    # Find the indices of the pair with the smallest distance
+    min_distance_index = np.unravel_index(np.argmin(distances), distances.shape)
+
+    # Get the points
+    point1 = ridge_list[min_distance_index[0]]
+    point2 = vessel_list[min_distance_index[1]]
+    return point1,point2
+def dispoint2list(point,points_list):
+    point=np.array(point)
+    points_list=np.array(points_list)
+    distances = distance.cdist(point[np.newaxis, :], points_list, 'euclidean')[0]
+    return distances

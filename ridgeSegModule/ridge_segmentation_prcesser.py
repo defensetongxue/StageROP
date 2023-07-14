@@ -5,7 +5,7 @@ from torchvision import transforms
 from PIL import Image
 import torch.nn.functional as F
 from .models import FR_UNet
-
+import cv2
 def k_max_values_and_indices(scores, k,r=50):
 
     preds_list = []
@@ -123,8 +123,10 @@ class ridge_segmentation_processer():
                 composed_mask.append(mask_part)
 
             mask = compose_tensors_into_image(composed_mask)
+            
             if save_path:
-                torch.save(mask,save_path)
+                cv2.imwrite(save_path,
+                    np.uint8(mask.numpy()*255))
             assert save_path is not None
             if self.mode=='point':
                 mask_numpy = mask.numpy()

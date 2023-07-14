@@ -1,4 +1,4 @@
-from .function_ import train_epoch,val_epoch,get_optimizer,get_instance,ridge2json,sensitive_score,train_epoch_inception,val_epoch_inception
+from .function_ import *
 from .crop_dataset import crop_Dataset,ContrastEnhancement
 from .heatmap_dataset import heatmap_Dataset,TensorNorm
 from .both_dataset import both_Dataset

@@ -83,6 +83,8 @@ def get_config():
                         help='crop width.')
     parser.add_argument('--crop_per_image', type=int, default=8,
                         help='crop_per_image.')
+    parser.add_argument('--generate_vessel', type=bool, default=True,
+                        help='if generate vesel.')
     # Model
     parser.add_argument('--model_mode', type=str, default="heatmap",
                         help='Path to the source folder containing original datasets.')
