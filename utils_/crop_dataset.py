@@ -6,72 +6,68 @@ import torch
 from torchvision import transforms
 import json
 class crop_Dataset(data.Dataset):
-    '''
-        └───data
-            │
-            └───'crop_ridge_images'
-            │   │
-            │   └───001.jpg
-            │   └───002.jpg
-            │   └───...
-            │
-            └───'crop_ridge_annotations'
-                │
-                └───train.json
-                └───valid.json
-                └───test.json
-    '''
-    def __init__(self, data_path,split='train',resize=(800,800)):
+    
+    def __init__(self, data_path,split='train',
+                 img_resize=(256,256),
+                 vessel_resize=(256,256)):
 
         
-        self.annotations = json.load(open(os.path.join(data_path, 
-                                                       'crop_ridge_annotations', f"{split}.json")))
-        if split=="train" or split== "augument":
-            self.img_transform=transforms.Compose([
+        self.annotations = json.load(
+            open(os.path.join(data_path,'ridge_crop','annotations',f"{split}.json")))
+        self.split=split
+        self.img_resize=transforms.Compose(
+            [ContrastEnhancement(),transforms.Resize(img_resize)])
+        self.vessel_resize=transforms(vessel_resize)
+        self.img_enhance=transforms.Compose([
                 ContrastEnhancement(),
-                # transforms.Resize(resize),
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
                 Fix_RandomRotation(),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.4485, 0.5278, 0.5477], std=[0.0910, 0.1079, 0.1301])
-                # the mean and std is calculate by rop1 13 samples
+                
                 ])
-        elif split=='val' or split=='test':
-            self.img_transform=transforms.Compose([
-                ContrastEnhancement(),
-                # transforms.Resize(resize),
+        self.img_transform=transforms.Compose([
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.4485, 0.5278, 0.5477], std=[0.0910, 0.1079, 0.1301])
             ])
-        else:
-            raise ValueError(f"ilegal spilt : {split}")
+        self.vessel_transform=transforms.ToTensor()
     def __len__(self):
         return len(self.annotations)
     
     def __getitem__(self, idx):
         '''
-        The json format is
-        ({
-                "image_path":...,
-                "crop_from":...,
-                "class":...
-            })
-        '''
+        "image_name":data['image_name'],
+        "image_path":data["image_path"],
+        "class":data["class"],
+        "crop_name":crop_name,
+        "crop_vessel_path":vessel_crop_path,
+        "crop_image_path":image_crop_path,
+        "heatmap_path":heatmap_path,
+    '''
         # Load the image and label
         annotation = self.annotations[idx]
-        image_path= annotation['image_path']
-        img=Image.open(image_path)
+        
+        img=Image.open(annotation["crop_image_path"])
+        img=self.img_resize(img)
+        vessel=Image.open(annotation["crop_vessel_path"])
+        vessel=self.vessel_resize(vessel)
         label=annotation['class']
 
+        if self.split == "train" :
+            seed = torch.seed()
+            torch.manual_seed(seed)
+            img = self.img_enhance(img)
+            torch.manual_seed(seed)
+            vessel = self.img_enhance(vessel)
+            
+            
         # Transforms the image
         img=self.img_transform(img)
-        
+        vessel=self.vessel_transform(vessel)
         # Store esscencial data for visualization (Gram)
         meta={}
-        meta['image_path']=image_path
+        meta['image_path']=annotation['crop_name']
 
-        return img,label,meta
+        return (img,vessel),label,meta
     
     def num_classes(self):
         unique_classes = set(annot['class'] for annot in self.annotations)

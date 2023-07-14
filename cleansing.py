@@ -51,10 +51,11 @@ def generate_crop(data_path,vessel_threhold=300):
                                            l=vessel_threhold)
             elif data['class'] in [1,2]:
                 selected_points=ridge_list
-
+            else:
+                raise ValueError(f"illegal class for ridge {data['class']}")
             cnt=0
             image_name=data['image_name'].split('.')[0]
-            vessel_path=os.path.join(data,'vessel_seg',data['image_name'])
+            vessel_path=os.path.join(data_path,'vessel_seg',data['image_name'])
             heatmap_path=os.path.join(data_path,'ridge_mask',data['image_name'])
             for x,y in selected_points:
                 crop_name=f"{image_name}_{str(cnt)}.jpg"
@@ -74,9 +75,7 @@ def generate_crop(data_path,vessel_threhold=300):
                     "crop_image_path":image_crop_path,
                     "heatmap_path":heatmap_path,
                 })
-            else:
-                raise ValueError("illegal class for ridge")
-        with open(os.path.join(data_path,'ridge_crop','annotations',f"{split}.json"),'r') as f:
+        with open(os.path.join(data_path,'ridge_crop','annotations',f"{split}.json"),'w') as f:
             json.dump(annotation,f)
             
 if __name__=='__main__':
