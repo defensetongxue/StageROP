@@ -17,7 +17,7 @@ class crop_Dataset(data.Dataset):
         self.split=split
         self.img_resize=transforms.Compose(
             [ContrastEnhancement(),transforms.Resize(img_resize)])
-        self.vessel_resize=transforms(vessel_resize)
+        self.vessel_resize=transforms.Resize(vessel_resize)
         self.img_enhance=transforms.Compose([
                 ContrastEnhancement(),
                 transforms.RandomHorizontalFlip(),
@@ -67,7 +67,7 @@ class crop_Dataset(data.Dataset):
         meta={}
         meta['image_path']=annotation['crop_name']
 
-        return (img,vessel),label,meta
+        return [img,vessel],label,meta
     
     def num_classes(self):
         unique_classes = set(annot['class'] for annot in self.annotations)
