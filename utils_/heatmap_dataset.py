@@ -29,19 +29,14 @@ class heatmap_Dataset(data.Dataset):
                                                        'ridge_points', f"{split}.json")))
         self.resize=resize
 
-        if split=="train" or split== "augument":
-            self.heatmap_transform=transforms.Compose([
+        self.split=split
+        self.heatmap_resize=transforms.Resize((resize))
+        self.heatmap_enhance=transforms.Compose([
                     TensorhortonFlip(),
                     TensorVerticalFlip(),
                     TensorRotate(),
-                    TensorNorm()
                 ])
-        elif split=='val' or split=='test':
-            self.heatmap_transform=transforms.Compose([
-                TensorNorm()
-            ])
-        else:
-            raise ValueError(f"ilegal spilt : {split}")
+        self.heatmap_transform=transforms.ToTensor()
     def __len__(self):
         return len(self.annotations)
     
@@ -61,15 +56,12 @@ class heatmap_Dataset(data.Dataset):
         '''
         # Load the image and label
         annotation = self.annotations[idx]
-        heatmap=torch.load(annotation['heatmap_path'])
+        heatmap=Image.open(annotation['heatmap_path'])
         label=annotation['class']
-
-        # Transforms the image
-        heatmap=F.interpolate(heatmap[None,None,:,:]
-                              ,size=self.resize,
-                                mode='bilinear',
-                                  align_corners=False).squeeze()
-        heatmap=self.heatmap_transform(heatmap)
+        heatmap=self.heatmap_resize(heatmap)
+        if self.split =='train':
+            heatmap=self.heatmap_enhance(heatmap)
+        heatmap=self.heatmap_transform(heatmap).unsqueeze(0).repeat(3,1,1)
         # Store esscencial data for visualization (Gram)
         meta={}
         meta['image_path']=annotation['image_path']

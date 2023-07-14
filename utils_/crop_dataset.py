@@ -62,7 +62,7 @@ class crop_Dataset(data.Dataset):
             
         # Transforms the image
         img=self.img_transform(img)
-        vessel=self.vessel_transform(vessel)
+        vessel=self.vessel_transform(vessel).repeat(3,1,1)
         # Store esscencial data for visualization (Gram)
         meta={}
         meta['image_path']=annotation['crop_name']

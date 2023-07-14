@@ -67,8 +67,8 @@ class both_Dataset(data.Dataset):
             
         # Transforms the image
         img=self.img_transform(img)
-        vessel=self.vessel_transform(vessel)
-        heatmap=self.heatmap_transform(heatmap)
+        vessel=self.vessel_transform(vessel).repeat(3,1,1)
+        heatmap=self.heatmap_transform(heatmap).unsqueeze(0).repeat(3,1,1)
         # Store esscencial data for visualization (Gram)
         meta={}
         meta['image_path']=annotation['crop_name']
