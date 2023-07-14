@@ -1,9 +1,9 @@
 import torch.nn as nn
 import torch
 from .meta_model import build_inception3_pretrained,build_vgg16_pretrained
-class VGG16_both(nn.Module):
+class VGG16(nn.Module):
     def __init__(self,configs,num_classes) :
-        super(VGG16_both,self).__init__()
+        super(VGG16,self).__init__()
         self.model_crop=build_vgg16_pretrained(configs,num_classes)
         self.model_heatmap=build_vgg16_pretrained(configs,num_classes)
         self.classifier=nn.Linear(2*num_classes,num_classes)
@@ -15,9 +15,9 @@ class VGG16_both(nn.Module):
         x=self.classifier(x)
         return x
     
-class Inception_v3_both(nn.Module):
+class Inception3(nn.Module):
     def __init__(self,configs,num_classes):
-        super(Inception_v3_both,self).__init__()
+        super(Inception3,self).__init__()
         self.model_crop=build_vgg16_pretrained(configs,num_classes)
         self.model_heatmap=build_inception3_pretrained(configs,num_classes)
         self.classifier=nn.Linear(2*num_classes,num_classes)

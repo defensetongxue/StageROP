@@ -7,7 +7,6 @@ from config import get_config
 from utils_ import get_instance,ContrastEnhancement,sensitive_score,TensorNorm
 import models
 from sklearn.metrics import accuracy_score
-from ridgeLocateModule import RidgeLocateProcesser
 import numpy as np
 import cv2
 def visualize_and_save_landmarks(image_path, 
@@ -63,7 +62,6 @@ test_data_list=json.load(open(os.path.join(data_path, 'crop_ridge_annotations_ba
 # Create the visualizations directory if it doesn't exist
 crop_per_image=args.test_crop_per_image
 crop_distance=args.test_crop_distance
-crop_processer=RidgeLocateProcesser(crop_per_image,crop_distance)
 all_targets = []
 all_outputs = []
 heatmap_transforms=TensorNorm()

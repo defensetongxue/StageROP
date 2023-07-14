@@ -1,9 +1,9 @@
 import torch
 from torch.utils.data import DataLoader
 from config import get_config
-from utils_ import get_instance,get_optimizer,both_Dataset as CustomDatset
+from utils_ import get_instance,get_optimizer,crop_Dataset as CustomDatset
 import utils_
-import models
+import models.crop as models
 import os
 # Initialize the folder
 os.makedirs("checkpoints",exist_ok=True)
@@ -17,10 +17,11 @@ os.makedirs(result_path,exist_ok=True)
 print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
-model = get_instance(models, args.configs.MODEL.NAME,args.configs,
-                         num_classes=args.configs.NUM_CLASS,mode=args.model_mode)
+model = get_instance(models, args.configs.MODEL.NAME,
+                     args.configs,
+                    num_classes=args.configs.NUM_CLASS)
 criterion=torch.nn.CrossEntropyLoss()
-if args.configs.MODEL.NAME =='inceptionv3':
+if args.configs.MODEL.NAME =='Inception3':
     from utils_ import train_epoch_inception as train_epoch,val_epoch_inception as val_epoch
 else:
     from utils_ import train_epoch,val_epoch
@@ -56,8 +57,10 @@ else:
     )
 
 # Load the datasets
-train_dataset=get_instance(utils_,f"{args.model_mode}_Dataset",args.path_tar,'train')
-val_dataset=get_instance(utils_,f"{args.model_mode}_Dataset",args.path_tar,'val')
+train_dataset=CustomDatset(args.path_tar,'train',
+                           img_resize=(300,300),vessel_resize=(300,300))
+val_dataset=CustomDatset(args.path_tar,'val',
+                           img_resize=(300,300),vessel_resize=(300,300))
 # Create the data loaders
 train_loader = DataLoader(train_dataset, batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
                           shuffle=True, num_workers=args.configs.WORKERS)
