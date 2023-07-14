@@ -7,7 +7,7 @@ def generate_ridge(data_path):
     os.makedirs(os.path.join(data_path,'ridge_points'),exist_ok=True)
     os.system(f"rm -rf {os.path.join(data_path,'ridge_mask')}/*")
     os.system(f"rm -rf {os.path.join(data_path,'ridge_points')}/*")
-    processer=ridge_segmentation_processer('point',5,50)
+    processer=ridge_segmentation_processer('point',5,100)
     for split in splits:
         with open(os.path.join(data_path,'annotations',f'{split}.json'),'r') as f:
             data_list=json.load(f)
