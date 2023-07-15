@@ -26,15 +26,15 @@ class heatmap_Dataset(data.Dataset):
 
         
         self.annotations = json.load(open(os.path.join(data_path, 
-                                                       'ridge_points', f"{split}.json")))
+                                                       'ridge_crop','heatmap_annotations', f"{split}.json")))
         self.resize=resize
 
         self.split=split
         self.heatmap_resize=transforms.Resize((resize))
         self.heatmap_enhance=transforms.Compose([
-                    TensorhortonFlip(),
-                    TensorVerticalFlip(),
-                    TensorRotate(),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomVerticalFlip(),
+                Fix_RandomRotation(),
                 ])
         self.heatmap_transform=transforms.ToTensor()
     def __len__(self):
@@ -61,7 +61,7 @@ class heatmap_Dataset(data.Dataset):
         heatmap=self.heatmap_resize(heatmap)
         if self.split =='train':
             heatmap=self.heatmap_enhance(heatmap)
-        heatmap=self.heatmap_transform(heatmap).unsqueeze(0).repeat(3,1,1)
+        heatmap=self.heatmap_transform(heatmap).repeat(3,1,1)
         # Store esscencial data for visualization (Gram)
         meta={}
         meta['image_path']=annotation['image_path']
@@ -99,41 +99,3 @@ class Fix_RandomRotation:
             expand=self.expand, center=self.center)
         return img
     
-
-class ContrastEnhancement:
-    def __init__(self, factor=1.5):
-        self.factor = factor
-
-    def __call__(self, img):
-        enhancer = ImageEnhance.Contrast(img)
-        img = enhancer.enhance(self.factor)
-        return img
-    
-class TensorVerticalFlip():
-    def __call__(self,input_tensor):
-        p = torch.rand(1)
-        if p >0.5:
-            input_tensor=torch.flip(input_tensor,dims=[1])
-        return input_tensor
-class TensorhortonFlip():
-    def __call__(self,input_tensor):
-        p = torch.rand(1)
-        if p >0.5:
-            input_tensor=torch.flip(input_tensor,dims=[0])
-        return input_tensor
-class TensorRotate():
-    def __call__(self,input_tensor):
-        p = torch.rand(1)
-
-        if p >= 0 and p < 0.25:
-            input_tensor=torch.rot90(input_tensor,-1)
-        elif p >= 0.25 and p < 0.5:
-            input_tensor=torch.rot90(input_tensor,1)
-        elif p >= 0.5 and p < 0.75:
-            input_tensor=torch.rot90(input_tensor,2)
-        return input_tensor
-class TensorNorm():
-    def __call__(self, input_tensor):
-        input_tensor=input_tensor.unsqueeze(0)
-        input_tensor=input_tensor.repeat(3,1,1)
-        return input_tensor

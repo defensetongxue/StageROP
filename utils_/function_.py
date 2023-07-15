@@ -153,21 +153,6 @@ def val_epoch_inception(model, val_loader, loss_function, device):
 
     return avg_loss
 
-def sensitive_score(label,predict,data_list):
-    success_cnt=0
-    # print("wrong_list")
-    ill_cnt=0
-    cnt=0
-    for i,j in zip(label,predict):
-        if i>0:
-            ill_cnt+=1
-            if j>0:
-                success_cnt+=1
-        # if i!=j:
-        #     print(data_list[cnt])    
-        cnt+=1
-    return success_cnt/ill_cnt
-
 def crop_square(img_path, x, y, width, visual_path=None, save_path=None):
     # Open the image file
     img = Image.open(img_path)
@@ -214,3 +199,29 @@ def dispoint2list(point,points_list):
     points_list=np.array(points_list)
     distances = distance.cdist(point[np.newaxis, :], points_list, 'euclidean')[0]
     return distances
+
+def visualize_and_save_landmarks(image_path, 
+                                 preds, maxvals, save_path,text=False):
+    print(image_path)
+    img = cv2.imread(image_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # Ensure preds and maxvals are NumPy arrays
+    if isinstance(preds, torch.Tensor):
+        preds = preds.squeeze(0).numpy()
+    if isinstance(maxvals, torch.Tensor):
+        maxvals = maxvals.squeeze().numpy()
+    # Draw landmarks on the image
+    cnt=1
+    for pred, maxval in zip(preds, maxvals):
+        x, y = pred
+        # x,y=x*w_r,y*h_r
+        cv2.circle(img, (int(x), int(y)), 8, (255, 0, 0), -1)
+        if text:
+            cv2.putText(img, f"{maxval:.2f}", (int(x), int(y)), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(img, f"{cnt}", (int(x), int(y)), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+        cnt+=1
+    # Save the image with landmarks
+    cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    return preds,maxvals

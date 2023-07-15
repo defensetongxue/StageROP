@@ -2,7 +2,6 @@ import torch
 from torch.utils.data import DataLoader
 from config import get_config
 from utils_ import get_instance,get_optimizer,both_Dataset as CustomDatset
-import utils_
 import models.both as models
 import os
 # Initialize the folder
@@ -58,9 +57,9 @@ else:
 train_dataset=CustomDatset(args.path_tar,'train',(300,300),(300,300),(300,300))
 val_dataset=CustomDatset(args.path_tar,'val',(300,300),(300,300),(300,300))
 # Create the data loaders
-train_loader = DataLoader(train_dataset, batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
+train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
                           shuffle=True, num_workers=args.configs.WORKERS)
-val_loader = DataLoader(val_dataset, batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
+val_loader = DataLoader(val_dataset, batch_size=args.batch_size,
                         shuffle=False, num_workers=args.configs.WORKERS)
 
 best_val_loss = float('inf')

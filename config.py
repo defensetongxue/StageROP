@@ -85,11 +85,11 @@ def get_config():
                         help='crop_per_image.')
     parser.add_argument('--generate_vessel', type=bool, default=False,
                         help='if generate vesel.')
-    parser.add_argument('--generate_ridge', type=bool, default=True,
+    parser.add_argument('--generate_ridge', type=bool, default=False,
                         help='if generate vesel.')
     # Model
-    parser.add_argument('--model_mode', type=str, default="heatmap",
-                        help='Path to the source folder containing original datasets.')
+    parser.add_argument('--batch_size', type=int, default="32",
+                        help='batch size when training')
     # train and test
     parser.add_argument('--save_name', type=str, default="./checkpoints/best.pth",
                         help='Name of the file to save the best model during training.')
