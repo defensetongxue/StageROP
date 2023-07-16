@@ -28,7 +28,7 @@ class Inception3(nn.Module):
             vessel,vessel_au=self.crop_vessel_model(vessel)
             x=torch.cat([img,vessel],dim=-1)
             x=self.classifier(x)
-            return x,img_au,vessel_au
+            return [x,img_au,vessel_au]
         else:
             img=self.crop_img_model(img)
             vessel=self.crop_vessel_model(vessel)

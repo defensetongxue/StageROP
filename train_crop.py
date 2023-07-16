@@ -5,6 +5,7 @@ from utils_ import get_instance,get_optimizer,crop_Dataset as CustomDatset
 import utils_
 import models.crop as models
 import os
+from utils_ import train_epoch,val_epoch
 # Initialize the folder
 os.makedirs("checkpoints",exist_ok=True)
 os.makedirs("experiments",exist_ok=True)
@@ -21,10 +22,7 @@ model = get_instance(models, args.configs.MODEL.NAME,
                      args.configs,
                     num_classes=args.configs.NUM_CLASS)
 criterion=torch.nn.CrossEntropyLoss()
-if args.configs.MODEL.NAME =='Inception3':
-    from utils_ import train_epoch_inception as train_epoch,val_epoch_inception as val_epoch
-else:
-    from utils_ import train_epoch,val_epoch
+
 # Set up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)

@@ -19,8 +19,10 @@ def train_epoch(model, optimizer, train_loader, loss_function, device):
         optimizer.zero_grad()
 
         outputs = model(inputs)
-        loss = loss_function(outputs, targets)
-
+        if isinstance(outputs,list):
+            loss=sum([loss_function(i,targets) for i in outputs])
+        else:
+            loss=loss_function(outputs,targets)
         loss.backward()
         optimizer.step()
 
@@ -42,7 +44,10 @@ def val_epoch(model, val_loader, loss_function, device):
             targets = targets.to(device)
 
             outputs = model(inputs)
-            loss = loss_function(outputs, targets)
+            if isinstance(outputs,list):
+                loss=sum([loss_function(i,targets) for i in outputs])
+            else:
+                loss=loss_function(outputs,targets)
 
             running_loss += loss.item()
 

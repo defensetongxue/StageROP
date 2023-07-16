@@ -4,6 +4,7 @@ from config import get_config
 from utils_ import get_instance,get_optimizer,both_Dataset as CustomDatset
 import models.both as models
 import os
+from utils_ import train_epoch,val_epoch
 # Initialize the folder
 os.makedirs("checkpoints",exist_ok=True)
 os.makedirs("experiments",exist_ok=True)
@@ -19,10 +20,6 @@ print(f"the mid-result and the pytorch model will be stored in {result_path}")
 model = get_instance(models, args.configs.MODEL.NAME,args.configs,
                          num_classes=args.configs.NUM_CLASS)
 criterion=torch.nn.CrossEntropyLoss()
-if args.configs.MODEL.NAME =='inceptionv3':
-    from utils_ import train_epoch_inception as train_epoch,val_epoch_inception as val_epoch
-else:
-    from utils_ import train_epoch,val_epoch
 # Set up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)

@@ -1,0 +1,2 @@
+python -u train_heatmap.py --save_name ./checkpoints/heatmap_inceptionv3.pth --cfg ./YAML/inceptionv3.yaml --batch_size 64
+python -u test_heatmap.py --save_name ./checkpoints/heatmap_inceptionv3.pth  --cfg ./YAML/inceptionv3.yaml
