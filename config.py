@@ -105,8 +105,8 @@ def get_config():
     parser.add_argument('--cfg', help='experiment configuration filename',
                         default="./YAML/vgg16.yaml", type=str)
     # test
-    parser.add_argument('--test_crop_per_image', help='test_crop_per_image',
-                        default=8, type=int)
+    parser.add_argument('--test_max', help='test_crop_per_image',
+                        default=1, type=int)
     parser.add_argument('--test_crop_distance', help='test_crop_distance',
                         default=20, type=int)
     args = parser.parse_args()

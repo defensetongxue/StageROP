@@ -47,8 +47,8 @@ with torch.no_grad():
         image_path=data['image_path']
         label=data['class']
         image_name= data['image_name']
-        heatmap=Image.open(data["heatmap_path"])
-        heatmap=heatmap_transform(heatmap).repeat(3,1,1).to(device)
+        heatmap=Image.open(data['image_path'])
+        heatmap=heatmap_transform(heatmap).to(device)
         outputs = model(heatmap.unsqueeze(0))
         probs = torch.softmax(outputs, dim=1)
         predicted_labels = torch.argmax(outputs, dim=1).squeeze().cpu()

@@ -51,7 +51,7 @@ heatmap_transform=transforms.Compose([
     transforms.Resize((300,300)),
     transforms.ToTensor()])
 print(f"test name number {len(ridge_seg_list)}")
-cnt_max=5
+cnt_max=args.test_max
 with torch.no_grad():
     for data in ridge_seg_list:
         image_path=data['image_path']

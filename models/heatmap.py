@@ -6,8 +6,11 @@ class Inception3(nn.Module):
         self.model_heatmap=build_inception3_pretrained(configs,num_classes)
 
     def forward(self,x):
-        return self.model_heatmap(x)
-
+        if self.training:
+            x,au=self.model_heatmap(x)
+            return [x,au]
+        x=self.model_heatmap(x)
+        return  x
 
 class VGG16(nn.Module):
     def __init__(self,configs,num_classes):

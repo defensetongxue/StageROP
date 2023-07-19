@@ -56,12 +56,13 @@ class heatmap_Dataset(data.Dataset):
         '''
         # Load the image and label
         annotation = self.annotations[idx]
-        heatmap=Image.open(annotation['heatmap_path'])
+        heatmap=Image.open(annotation['image_path'])
         label=annotation['class']
         heatmap=self.heatmap_resize(heatmap)
         if self.split =='train':
             heatmap=self.heatmap_enhance(heatmap)
-        heatmap=self.heatmap_transform(heatmap).repeat(3,1,1)
+        # heatmap=self.heatmap_transform(heatmap).repeat(3,1,1)
+        heatmap=self.heatmap_transform(heatmap)
         # Store esscencial data for visualization (Gram)
         meta={}
         meta['image_path']=annotation['image_path']
