@@ -131,6 +131,19 @@ def generate_crop(data_path,vessel_threhold=300):
             json.dump(annotation_heatmap,f)
         with open(os.path.join(data_path,'ridge_crop','annotations',f"{split}.json"),'w') as f:
             json.dump(annotation_crop,f)
+def generate_crop_val(data_path):
+    os.makedirs(os.path.join(data_path,'ridge_crop',"val_annotations"),exist_ok=True)
+    for split in ['train','val','test']:
+        with open(os.path.join(data_path,'ridge_points',f"{split}.json"),'r') as f:
+            data_list=json.load(f)
+        # build ridge value dict
+        ridge_val_dict={}
+        for data in data_list:
+            ridge_val_dict[data['imga_name']]={'value':[i['value'] for i in data['ridge']],
+                                               'class':data['class']}
+        with open(os.path.join(data_path,'ridge_crop',"val_annotations",f"{split}.json"),'w') as f:
+            json.dump(ridge_val_dict,f)
+    
             
 if __name__=='__main__':
     from config import get_config
@@ -141,4 +154,6 @@ if __name__=='__main__':
         generate_vessel_result(args.path_tar)
     if args.generate_ridge:
         generate_ridge(args.path_tar)
-    generate_crop(args.path_tar)
+    if args.generate_crop:
+        generate_crop(args.path_tar)
+    generate_crop_val(args.path_tar)

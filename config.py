@@ -87,6 +87,9 @@ def get_config():
                         help='if generate vesel.')
     parser.add_argument('--generate_ridge', type=bool, default=False,
                         help='if generate vesel.')
+    parser.add_argument('--generate_crop', type=bool, default=False,
+                        help='if generate vesel.')
+    
     # Model
     parser.add_argument('--batch_size', type=int, default="32",
                         help='batch size when training')
