@@ -48,6 +48,7 @@ class val_Dataset(data.Dataset):
         # Load the image and label
         image_select = self.idx_list[idx]
         data=self.annotations[image_select]['value']
+        data=torch.tensor(data)
         label=self.annotations[image_select]['class']
         # Store esscencial data for visualization (Gram)
         meta={'image_name':image_select}

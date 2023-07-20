@@ -139,7 +139,7 @@ def generate_crop_val(data_path):
         # build ridge value dict
         ridge_val_dict={}
         for data in data_list:
-            ridge_val_dict[data['imga_name']]={'value':[i['value'] for i in data['ridge']],
+            ridge_val_dict[data['image_name']]={'value':[i['value'] for i in data['ridge']],
                                                'class':data['class']}
         with open(os.path.join(data_path,'ridge_crop',"val_annotations",f"{split}.json"),'w') as f:
             json.dump(ridge_val_dict,f)
