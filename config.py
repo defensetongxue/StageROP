@@ -87,7 +87,7 @@ def get_config():
                         help='if generate vesel.')
     parser.add_argument('--generate_ridge', type=bool, default=False,
                         help='if generate vesel.')
-    parser.add_argument('--generate_crop', type=bool, default=False,
+    parser.add_argument('--generate_crop', type=bool, default=True,
                         help='if generate vesel.')
     
     # Model

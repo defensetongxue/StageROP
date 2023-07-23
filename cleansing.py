@@ -35,6 +35,7 @@ def generate_crop(data_path,vessel_threhold=300):
     os.makedirs(os.path.join(data_path,'ridge_crop',"heatmap_annotations"),exist_ok=True)
 
     for split in ['train','val','test']:
+        
         with open(os.path.join(data_path,'ridge',f"{split}.json"),'r') as f:
             ridge_list=json.load(f)
         with open(os.path.join(data_path,'annotations',f"{split}.json"),'r') as f:
@@ -45,7 +46,13 @@ def generate_crop(data_path,vessel_threhold=300):
         ridge_seg_dict={i['image_name']:i for i in ridge_seg_list}
         annotation_crop=[]
         annotation_heatmap=[]
+        data_cnt=0
+        print(f"there is {len(data_list)} in {split}")
         for data in data_list:
+            data_cnt +=1
+            if data_cnt%200==0:
+                print(f"finished {data_cnt}/{len(data_list)}")
+
             if data['image_name'] in ridge_dict:
                 # this data has rigde annotation
                 data_ridge=ridge_dict[data['image_name']]
