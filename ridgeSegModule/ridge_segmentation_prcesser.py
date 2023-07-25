@@ -31,24 +31,6 @@ def k_max_values_and_indices(scores, k,r=50):
     preds_list=np.array(preds_list,dtype=np.float32)
     return maxvals_list, preds_list
 
-def decompose_image_into_tensors(image):
-    # Assumes the input is a PyTorch tensor
-    height, width = image.shape[1], image.shape[2]
-    # Split the image tensor into two along the height
-    first_half, second_half = torch.split(image, height//2, dim=1)
-    # Then split each half into two along the width
-    first_half_tensors = torch.split(first_half, width//2, dim=2)
-    second_half_tensors = torch.split(second_half, width//2, dim=2)
-    # Return a list of all four image parts
-    return list(first_half_tensors) + list(second_half_tensors)
-
-
-def compose_tensors_into_image(tensors_list):
-    # Assumes the input is a list of four tensors
-    top = torch.cat(tensors_list[:2], dim=1)  # Concatenate along width
-    bottom = torch.cat(tensors_list[2:], dim=1)  # Concatenate along width
-    return torch.cat([top, bottom], dim=0)  # Concatenate along height
-
 class ridge_segmentation_processer():
     def __init__(self,mode,point_number,point_dis=50):
         self.mode=mode
