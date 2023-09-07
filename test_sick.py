@@ -4,7 +4,7 @@ import torch
 from torchvision import transforms
 from config import get_config
 from utils_ import get_instance
-from models.value import fc
+from models.stage23 import fc
 import numpy as np
 from PIL import Image
 from utils_ import acc,auc,auc_sens

@@ -5,7 +5,7 @@ from cleansing import crop_square
 from torchvision import transforms
 from config import get_config
 from utils_ import get_instance,ContrastEnhancement
-import models.both as models
+import models.stage123 as models
 import numpy as np
 from PIL import Image
 from utils_ import acc,auc,auc_sens

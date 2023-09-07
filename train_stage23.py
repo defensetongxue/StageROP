@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 from config import get_config
 from utils_ import get_instance,get_optimizer,val_Dataset as CustomDatset
-from models.value import fc 
+from models.stage23 import fc 
 import os
 from utils_ import train_epoch,val_epoch
 # Initialize the folder
