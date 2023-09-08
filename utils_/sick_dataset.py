@@ -6,7 +6,7 @@ import os.path
 import torch
 from torchvision import transforms
 import json
-class heatmap_Dataset(data.Dataset):
+class sick_Dataset(data.Dataset):
     '''
         └───data
             │
@@ -16,21 +16,15 @@ class heatmap_Dataset(data.Dataset):
             │   └───002.jpg
             │   └───...
             │
-            └───'crop_ridge_annotations'
-                │
-                └───train.json
-                └───valid.json
-                └───test.json
     '''
-    def __init__(self, data_path,split='train',resize=(256,256)):
+    def __init__(self, data_path,split='train',heatmap_resize=(256,256),split_name='0'):
 
-        
-        self.annotations = json.load(open(os.path.join(data_path, 
-                                                       'ridge_crop','heatmap_annotations', f"{split}.json")))
-        self.resize=resize
-
+        with open(os.path.join(os.path.join(data_path,'annotations', f"{split_name}.json"),'r')) as f:
+            self.annotation=json.load(f)
+        with open(os.path.join(data_path,'split',f"{split_name}.json"),'r') as f:
+            self.split_list=json.load(f)[split]
         self.split=split
-        self.heatmap_resize=transforms.Resize((resize))
+        self.heatmap_resize=transforms.Resize((heatmap_resize))
         self.heatmap_enhance=transforms.Compose([
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
@@ -38,37 +32,24 @@ class heatmap_Dataset(data.Dataset):
                 ])
         self.heatmap_transform=transforms.ToTensor()
     def __len__(self):
-        return len(self.annotations)
+        return len(self.split_list)
     
     def __getitem__(self, idx):
         '''
-        The json format is
-        {
-            'image_name':os.path.basename(img_path),
-            'image_path':img_path,
-            'point_number':self.point_number,
-            'heatmap_path':save_path,
-            'ridge':[{
-                'coordinate':preds_list[i],
-                'value':maxvals_list[i]
-            } for i in range(len(maxvals_list))]
-        }
         '''
         # Load the image and label
-        annotation = self.annotations[idx]
-        # heatmap=Image.open(annotation['image_path'])
-        heatmap=Image.open(annotation['heatmap_path'])
-        label=annotation['class']
+        image_name = self.split_list[idx]
+        data=self.annotation[image_name]
+        heatmap=Image.open(data['ridge_seg']['heatmap_path'])
+        label=data['stage']
         if label>0:
             label=1
         heatmap=self.heatmap_resize(heatmap)
         if self.split =='train':
             heatmap=self.heatmap_enhance(heatmap)
         heatmap=self.heatmap_transform(heatmap).repeat(3,1,1)
-        # heatmap=self.heatmap_transform(heatmap)
-        # Store esscencial data for visualization (Gram)
         meta={}
-        meta['image_path']=annotation['image_path']
+        meta['image_path']=data['image_path']
 
         return heatmap,label,meta
     
