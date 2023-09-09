@@ -1,37 +1,23 @@
 {
-    "GPUS": "(0,)",
-    "WORKERS": 12,
-    "PRINT_FREQ": 50,
-    "NUM_CLASS": 2,
-    "RESULT_PATH": "./experiments",
-    "IMAGE_RESIZE": [
-        200,
-        200
-    ],
-    "IMAGE_SIZE": [
-        1600,
-        1200
-    ],
-    "MODEL": {
-        "NAME": "Inception3"
+    "num_works": 12,
+    "num_classes": 2,
+    "result_path": "./experiments",
+    "model": {
+        "name": "Inception3"
     },
-    "TRAIN": {
-        "BATCH_SIZE_PER_GPU": 32,
-        "SHUFFLE": true,
-        "BEGIN_EPOCH": 0,
-        "END_EPOCH": 500,
-        "EARLY_STOP": 15,
-        "OPTIMIZER": "adam",
-        "LR": 3e-06,
-        "WD": 0.0,
-        "LR_STEP": [
+    "train": {
+        "batch_size": 32,
+        "begin_epoch": 0,
+        "end_epoch": 500,
+        "early_stop": 15,
+        "optimizier": "adam",
+        "lr": 3e-06,
+        "wd": 0.0,
+        "lr_step": [
             100,
             165
         ],
-        "MOMENTUM": 0.0,
-        "NESTEROV": false
-    },
-    "TEST": {
-        "BATCH_SIZE_PER_GPU": 8
+        "momentum": 0.0,
+        "nesterov": false
     }
 }

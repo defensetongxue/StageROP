@@ -58,7 +58,7 @@ class stage23_Dataset(data.Dataset):
             vessel=self.vessel_enhance(vessel)
 
         image=self.img_transform(image)
-        vessel=self.vessel_transform(vessel)
+        vessel=self.vessel_transform(vessel).repeat(3,1,1)
         meta=crop_name
         return [image,vessel],label,meta
     

@@ -45,7 +45,7 @@ class stage23_Dataset(data.Dataset):
         vessel=self.vessel_resize(vessel)
         if self.split == "train" :
             vessel=self.vessel_enhance(vessel)
-        vessel=self.vessel_transform(vessel)
+        vessel=self.vessel_transform(vessel).repeat(3,1,1)
         meta={}
         meta['crop_name']=crop_name
         return vessel,label,meta
