@@ -37,16 +37,9 @@ def build_efficientnet_b7(config):
     model.classifier[1]=nn.Linear(in_features=2560, out_features=config['num_classes'], bias=True)
     print(f"efficentnet b7 has {count_parameters(model)}")
     # return model
-def build_Deit(config):
-    os.environ['TORCH_HOME'] = config["result_path"]
-    model = torch.hub.load('facebookresearch/deit:main', 'deit_base_patch16_224', pretrained=True)
-    model.head=nn.Linear(in_features=768,out_features=config["num_classes"],bias=True)
-    print(f"Deit has {count_parameters(model)}")
-    return model
 if __name__ =='__main__':
     cfg={
         "result_path":"./experiments",
         "num_classes":2
     }
-    build_Deit(cfg)
-    # build_efficientnet_b7(cfg)
+    build_efficientnet_b7(cfg)
