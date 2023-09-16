@@ -3,7 +3,7 @@ import os
 import torch
 from torchvision import transforms
 from config import get_config
-from utils_ import to_device
+from utils_ import to_device, crop_square, ContrastEnhancement
 from models import build_model
 import numpy as np
 from PIL import Image
@@ -18,7 +18,7 @@ os.makedirs(result_path, exist_ok=True)
 print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
-model,_ = build_model(configs=args.configs['model'])
+model, _ = build_model(configs=args.configs['model'])
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 model.load_state_dict(
@@ -40,23 +40,42 @@ all_outputs = []
 all_scores = []
 print(f"test name number {len(split_list)}")
 heatmap_process = transforms.Compose([
-    transforms.Resize(args.configs['image_resize']),
+    transforms.Resize(args.configs['vessel_resize']),
     transforms.ToTensor()
 ])
+label_map = {2: 0, 3: 1}
+os.makedirs(os.path.join(args.result_path,
+            'stage23_crop_image'), exist_ok=True)
+vessel_process = transforms.Compose([
+    transforms.Resize(args.configs["vessel_resize"]),
+    transforms.ToTensor()])
+def decide_statgy(predict):
+    return max(predict)
 with torch.no_grad():
     for image_name in split_list:
         data = data_dict[image_name]
-        heatmap = Image.open(data['ridge_seg']['heatmap_path']).convert('RGB')
-        label = data['stage']
-        if label > 0:
-            label = 1
-        heatmap = heatmap_process(heatmap)
-        heatmap= to_device(heatmap,device)
-        outputs = model(heatmap.unsqueeze(0))
+        if data['stage'] not in [2,3]:
+            continue
+        label = label_map[data['stage']]
+        vessel = Image.open(data['vessel_path']).convert('RGB')
+        crop_vessel_list = []
+        cnt = 0
+        for x, y in data['ridge_seg']['coordinate']:
+            croped_vessel = crop_square(data['image_path'], x, y, args.configs['crop_width'],
+                                     save_path=os.path.join(args.result_path, 'stage23_crop_image', f"{data['id']}_{str(cnt)}_vessel.jpg")).convert('RGB')
+            cnt += 1
+            crop_vessel_list.append(vessel_process(croped_vessel).unsqueeze(0))
+
+        inputs=to_device(
+            x=torch.cat(crop_vessel_list,dim=0),
+            device=device
+        )
+        outputs = model(inputs)
         probs = torch.softmax(outputs, dim=1)
         predicted_labels = torch.argmax(outputs, dim=1).squeeze().cpu()
+        predicted_label=decide_statgy(predicted_labels)
         all_targets.append(label)
-        all_outputs.append(int(predicted_labels))
+        all_outputs.append(int(predicted_label))
         all_scores.append(probs.detach().cpu())
 all_targets = np.array(all_targets)
 all_outputs = np.array(all_outputs)
