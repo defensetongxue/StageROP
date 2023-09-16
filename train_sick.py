@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 from config import get_config
 from utils_ import get_instance,get_optimizer,sick_Dataset as CustomDatset,get_lr_scheduler
-import models.stage123 as models
+from  models import build_model
 import os
 from utils_ import train_epoch,val_epoch
 # Initialize the folder
@@ -17,7 +17,7 @@ os.makedirs(result_path,exist_ok=True)
 print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
-model,criterion = get_instance(models, args.configs['model']['name'],args.configs['model'])
+model,criterion = build_model(args.configs['model'])
 # Set up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)

@@ -1,8 +1,6 @@
-from ridgeSegModule import generate_ridge
 import os
 import json
 from utils_ import crop_square
-import numpy as np
 def select_points(point_list1, point_list2, l):
     # for stage 3, we only select those ridge points nearby the vessel abnormal
     selected_points = []

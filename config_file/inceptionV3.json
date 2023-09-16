@@ -1,23 +1,28 @@
 {
     "num_works": 12,
     "num_classes": 2,
+    "image_resize":[328,328],
     "vessel_disctance_threshold":300,
     "crop_width":300,
-    "result_path": "./experiments",
+    "split_name":"mini",
+    "official_model_save": "./experiments",
     "model": {
-        "name": "Inception3"
+        "name": "inceptionv3",
+        "loss_func":"CrossEntropyLoss"
+    },
+    "lr_strategy":{
+        "method":"constant"
     },
     "train": {
-        "batch_size": 32,
         "begin_epoch": 0,
-        "end_epoch": 500,
-        "early_stop": 15,
-        "optimizier": "adam",
-        "lr": 3e-06,
+        "end_epoch": 1,
+        "early_stop": 30,
+        "optimizer": "adam",
+        "lr": 0.0001,
         "wd": 0.0,
         "lr_step": [
-            100,
-            165
+            30,
+            50
         ],
         "momentum": 0.0,
         "nesterov": false
