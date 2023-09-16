@@ -74,7 +74,7 @@ def generate_crop(data_path,vessel_threhold=300,crop_width=300):
         json.dump(annotation_crop,f)
 
 def generate_crop_split(data_path,split_name):
-    os.makedirs(os.path.join(data_path,'stage_rop','split'),exist_ok=True)
+    os.makedirs(os.path.join(data_path,'stage_rop','crop_split'),exist_ok=True)
     with open(os.path.join(data_path,'split',f"{split_name}.json"),'r') as f:
         split_orignal=json.load(f)
     with open(os.path.join(data_path,'stage_rop','crop_annotations.json'),'r') as f:
@@ -87,7 +87,7 @@ def generate_crop_split(data_path,split_name):
     for crop_name in crop_annotation:
         tar_split=split_dict[crop_name.split('_')[0]]
         split_new[tar_split].append(crop_name)
-    with open(os.path.join(data_path,'stage_rop','split',f"{split_name}.json"),'w') as f:
+    with open(os.path.join(data_path,'stage_rop','crop_split',f"{split_name}.json"),'w') as f:
         json.dump(split_new,f)
 
 if __name__=='__main__':

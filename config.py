@@ -23,7 +23,7 @@ def get_config():
     
     # config file 
     parser.add_argument('--cfg', help='experiment configuration filename',
-                        default="./config_file/inceptionV3.json", type=str)
+                        default="./config_file/stage12_inceptionV3.json", type=str)
     # test
     parser.add_argument('--test_max', help='test_crop_per_image',
                         default=1, type=int)
