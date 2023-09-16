@@ -97,9 +97,9 @@ if __name__=='__main__':
 
     args=get_config()
     
-    # if args.generate_crop:
-    #     generate_crop(args.data_path,
-    #                   vessel_threhold=args.configs['vessel_disctance_threshold'],
-    #                   crop_width=args.configs['crop_width'])
+    if args.generate_crop:
+        generate_crop(args.data_path,
+                      vessel_threhold=args.configs['vessel_disctance_threshold'],
+                      crop_width=args.configs['crop_width'])
     if args.generate_split:
         generate_crop_split(args.data_path,split_name=args.split_name)
