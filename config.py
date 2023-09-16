@@ -6,7 +6,10 @@ def get_config():
                         help='Path to the target folder to store the processed datasets.')
     parser.add_argument('--generate_crop', type=bool, default=True,
                         help='if generate vesel.')
-    
+    parser.add_argument('--generate_split', type=bool, default=True,
+                        help='if generate vesel.')
+    parser.add_argument('--split_name', type=str, default='mini',
+                        help='Path to the target folder to store the processed datasets.')
     # Model
     # train and test
     parser.add_argument('--save_dir', type=str, default="./checkpoints",
@@ -20,7 +23,7 @@ def get_config():
     
     # config file 
     parser.add_argument('--cfg', help='experiment configuration filename',
-                        default="./config/inceptionV3.json", type=str)
+                        default="./config_file/inceptionV3.json", type=str)
     # test
     parser.add_argument('--test_max', help='test_crop_per_image',
                         default=1, type=int)

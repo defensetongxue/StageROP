@@ -1,6 +1,8 @@
 {
     "num_works": 12,
     "num_classes": 2,
+    "vessel_disctance_threshold":300,
+    "crop_width":300,
     "result_path": "./experiments",
     "model": {
         "name": "Inception3"

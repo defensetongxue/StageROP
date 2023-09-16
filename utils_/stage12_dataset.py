@@ -5,7 +5,7 @@ import os.path
 import torch
 from torchvision import transforms
 import json
-class stage23_Dataset(data.Dataset):
+class stage12_Dataset(data.Dataset):
     def __init__(self, data_path,split='train',split_name='0',
                  img_resize=(256,256)):
         # input the vessel path
