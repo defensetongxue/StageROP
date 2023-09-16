@@ -1,8 +1,8 @@
 import torch
 from torch.utils.data import DataLoader
 from config import get_config
-from utils_ import get_instance,get_optimizer,heatmap_Dataset as CustomDatset
-import models.heatmap as models
+from utils_ import get_optimizer,stage12_Dataset as CustomDatset,get_lr_scheduler
+from  models import build_model
 import os
 from utils_ import train_epoch,val_epoch
 # Initialize the folder
@@ -17,10 +17,7 @@ os.makedirs(result_path,exist_ok=True)
 print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
-model = get_instance(models, args.configs.MODEL.NAME,
-                     args.configs,
-                    num_classes=args.configs.NUM_CLASS)
-criterion=torch.nn.CrossEntropyLoss()
+model,criterion = build_model(args.configs['model'])
 # Set up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)
@@ -36,50 +33,50 @@ if os.path.isfile(args.from_checkpoint):
 
 # Creatr optimizer
 model.train()
+# Creatr optimizer
 optimizer = get_optimizer(args.configs, model)
-
-# from torch import optim
-last_epoch = args.configs.TRAIN.BEGIN_EPOCH
-if isinstance(args.configs.TRAIN.LR_STEP, list):
-    lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, args.configs.TRAIN.LR_STEP,
-        args.configs.TRAIN.LR_FACTOR, last_epoch-1
-    )
-else:
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(
-        optimizer, args.configs.TRAIN.LR_STEP,
-        args.configs.TRAIN.LR_FACTOR, last_epoch-1
-    )
+lr_scheduler=get_lr_scheduler(optimizer,args.configs['lr_strategy'])
+last_epoch = args.configs['train']['begin_epoch']
 
 # Load the datasets
-train_dataset=CustomDatset(args.path_tar,'train',resize=(300,300))
-val_dataset=CustomDatset(args.path_tar,'val',resize=(300,300))
+train_dataset=CustomDatset(args.data_path,args.configs,split='train',split_name='mini')
+val_dataset=CustomDatset(args.data_path,args.configs,split='val',split_name='mini')
 # Create the data loaders
-train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
-                          shuffle=True, num_workers=args.configs.WORKERS)
-val_loader = DataLoader(val_dataset, batch_size=args.batch_size,
-                        shuffle=False, num_workers=args.configs.WORKERS)
-
+train_loader = DataLoader(train_dataset, 
+                          batch_size=args.configs['train']['batch_size'],
+                          shuffle=True, num_workers=args.configs['num_works'])
+val_loader = DataLoader(val_dataset,
+                        batch_size=args.configs['train']['batch_size'],
+                        shuffle=False, num_workers=args.configs['num_works'])
+print("There is {} patch size".format(args.configs["train"]['batch_size']))
+print(f"Train: {len(train_loader)}, Val: {len(val_loader)}")
+early_stop_counter = 0
 best_val_loss = float('inf')
-total_epoches=args.configs.TRAIN.END_EPOCH
+total_epoches=args.configs['train']['end_epoch']
 # Training and validation loop
 for epoch in range(last_epoch,total_epoches):
-    train_loss = train_epoch(model, optimizer, train_loader, criterion, device)
-    lr_scheduler.step()
 
-    val_loss ,acc= val_epoch(model, val_loader, criterion, device)
-    print(f"Epoch {epoch + 1}/{total_epoches}, Train Loss: {train_loss:.6f},"
-          f" Val Loss: {val_loss:.6f}, Acc: {acc:.4f}"
-          f" Lr: {optimizer.state_dict()['param_groups'][0]['lr']:.6f}")
+    train_loss = train_epoch(model, optimizer, train_loader, criterion, device)
+    val_loss = val_epoch(model, val_loader, criterion, device)
+    print(f"Epoch {epoch + 1}/{total_epoches}," 
+          f"Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}," 
+            f" Lr: {optimizer.state_dict()['param_groups'][0]['lr']:.6f}" )
+    # Update the learning rate if using ReduceLROnPlateau or CosineAnnealingLR
+    if lr_scheduler is not None:
+        if args.configs['lr_strategy']['method'] == 'reduce_plateau':
+            lr_scheduler.step(val_loss)
+        elif args.configs['lr_strategy']['method'] == 'cosine_annealing':
+            lr_scheduler.step()
 
     # Early stopping
     if val_loss < best_val_loss:
         best_val_loss = val_loss
         early_stop_counter = 0
-        torch.save(model.state_dict(),(os.path.join(args.save_name)))
-        print(f"Model saved as {args.save_name}")
+        torch.save(model.state_dict(),
+                   os.path.join(args.save_dir,f"{args.split_name}_{args.save_name}"))
+        print("Model saved as {}".format(os.path.join(args.save_dir,f"{args.split_name}_{args.save_name}")))
     else:
         early_stop_counter += 1
-        if early_stop_counter >= args.configs.TRAIN.EARLY_STOP:
+        if early_stop_counter >= args.configs['train']['early_stop']:
             print("Early stopping triggered")
             break

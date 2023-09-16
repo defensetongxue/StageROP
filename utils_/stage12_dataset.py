@@ -6,8 +6,7 @@ import torch
 from torchvision import transforms
 import json
 class stage12_Dataset(data.Dataset):
-    def __init__(self, data_path,split='train',split_name='0',
-                 img_resize=(256,256)):
+    def __init__(self, data_path,configs,split='train',split_name='0'):
         # input the vessel path
         self.split=split
         with open(os.path.join(data_path,'stage_rop','crop_annotations.json'),'r') as f:
@@ -20,7 +19,7 @@ class stage12_Dataset(data.Dataset):
                 self.split_list.append(crop_name)
 
         self.img_resize=transforms.Compose([ContrastEnhancement(),
-                                            transforms.Resize(img_resize)])
+                                            transforms.Resize(configs["image_resize"])])
         
         self.img_enhance=transforms.Compose([
                 transforms.RandomHorizontalFlip(),
@@ -30,7 +29,9 @@ class stage12_Dataset(data.Dataset):
         self.img_transform=transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.4485, 0.5278, 0.5477], std=[0.0910, 0.1079, 0.1301])])
-        
+        self.label_map={
+            1:0,2:1
+        }
     def __len__(self):
         return len(self.annotations)
     
@@ -44,7 +45,8 @@ class stage12_Dataset(data.Dataset):
         # Load the image and label
         crop_name = self.split_list[idx]
         data=self.annotation[crop_name]
-        label=data['stage']
+        label=self.label_map(data['stage'])
+
         image_path=data["crop_image_path"]
         image=Image.open(image_path)
         image=self.img_resize(image)

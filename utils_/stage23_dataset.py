@@ -1,13 +1,12 @@
 import torch.utils.data as data
-from PIL import Image,ImageEnhance  
+from PIL import Image
 import os
 import os.path
 import torch
 from torchvision import transforms
 import json
 class stage23_Dataset(data.Dataset):
-    def __init__(self, data_path,split='train',split_name='0',
-                 vessel_resize=(256,256)):
+    def __init__(self, data_path,configs,split='train',split_name='0'):
         # input the vessel path
         self.split=split
         with open(os.path.join(data_path,'stage_rop','crop_annotations.json'),'r') as f:
@@ -19,7 +18,7 @@ class stage23_Dataset(data.Dataset):
             if self.annotation[crop_name]['Stage'] in [2,3]:
                 self.split_list.append(crop_name)
 
-        self.vessel_resize=transforms.Resize(vessel_resize)
+        self.vessel_resize=transforms.Resize(configs["vessel_resize"])
         self.vessel_enhance=transforms.Compose([
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
