@@ -8,23 +8,15 @@ from torchvision import transforms
 import json
 class sick_Dataset(data.Dataset):
     '''
-        └───data
-            │
-            └───'heatmap'
-            │   │
-            │   └───001.jpg
-            │   └───002.jpg
-            │   └───...
-            │
     '''
-    def __init__(self, data_path,split='train',heatmap_resize=(256,256),split_name='0'):
+    def __init__(self, data_path,configs,split='train',split_name='mini'):
 
         with open(os.path.join(os.path.join(data_path,'annotations', f"{split_name}.json"),'r')) as f:
             self.annotation=json.load(f)
         with open(os.path.join(data_path,'split',f"{split_name}.json"),'r') as f:
             self.split_list=json.load(f)[split]
         self.split=split
-        self.heatmap_resize=transforms.Resize((heatmap_resize))
+        self.heatmap_resize=transforms.Resize((configs['img_resize']))
         self.heatmap_enhance=transforms.Compose([
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
@@ -40,22 +32,18 @@ class sick_Dataset(data.Dataset):
         # Load the image and label
         image_name = self.split_list[idx]
         data=self.annotation[image_name]
-        heatmap=Image.open(data['ridge_seg']['heatmap_path'])
+        heatmap=Image.open(data['ridge_seg']['heatmap_path']).convert('RGB')
         label=data['stage']
         if label>0:
             label=1
         heatmap=self.heatmap_resize(heatmap)
         if self.split =='train':
             heatmap=self.heatmap_enhance(heatmap)
-        heatmap=self.heatmap_transform(heatmap).repeat(3,1,1)
+        heatmap=self.heatmap_transform(heatmap)
         meta={}
         meta['image_path']=data['image_path']
 
         return heatmap,label,meta
-    
-    def num_classes(self):
-        unique_classes = set(annot['class'] for annot in self.annotations)
-        return len(unique_classes)
 
 class Fix_RandomRotation:
     def __init__(self, degrees=360, resample=False, expand=False, center=None):

@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 from config import get_config
-from utils_ import get_instance,get_optimizer,both_Dataset as CustomDatset,get_lr_scheduler
+from utils_ import get_instance,get_optimizer,sick_Dataset as CustomDatset,get_lr_scheduler
 import models.stage123 as models
 import os
 from utils_ import train_epoch,val_epoch
