@@ -46,7 +46,7 @@ drop_last = False
 if args.configs['model']['name'] == 'inceptionv3' \
     and len(train_dataset) % args.configs['train']['batch_size'] == 1:
     drop_last = True
-    print("drop last !")
+    print("drop last in train loader")
 train_loader = DataLoader(train_dataset, 
                           batch_size=args.configs['train']['batch_size'],
                           shuffle=True, num_workers=args.configs['num_works'],drop_last=drop_last)
