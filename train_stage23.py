@@ -42,9 +42,13 @@ last_epoch = args.configs['train']['begin_epoch']
 train_dataset=CustomDatset(args.data_path,args.configs,split='train',split_name='mini')
 val_dataset=CustomDatset(args.data_path,args.configs,split='val',split_name='mini')
 # Create the data loaders
+if args.configs['model']['name'] == 'inceptionv3' \
+    and len(train_dataset) % args.configs['train']['batch_size'] == 1:
+    drop_last = True
+    print("drop last !")
 train_loader = DataLoader(train_dataset, 
                           batch_size=args.configs['train']['batch_size'],
-                          shuffle=True, num_workers=args.configs['num_works'])
+                          shuffle=True, num_workers=args.configs['num_works'],drop_last=drop_last)
 val_loader = DataLoader(val_dataset,
                         batch_size=args.configs['train']['batch_size'],
                         shuffle=False, num_workers=args.configs['num_works'])

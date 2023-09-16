@@ -35,7 +35,7 @@ class stage23_Dataset(data.Dataset):
                 ])
         self.vessel_transform=transforms.ToTensor()
     def __len__(self):
-        return len(self.annotations)
+        return len(self.split_list)
     
     def __getitem__(self, idx):
         '''

@@ -15,7 +15,7 @@ class stage23_Dataset(data.Dataset):
             split_all = json.load(f)[split]
         self.split_list=[]
         for crop_name in split_all:
-            if self.annotation[crop_name]['Stage'] in [2,3]:
+            if self.annotation[crop_name]['stage'] in [2,3]:
                 self.split_list.append(crop_name)
 
         self.vessel_resize=transforms.Resize(configs["vessel_resize"])
@@ -25,8 +25,9 @@ class stage23_Dataset(data.Dataset):
                 Fix_RandomRotation(),
                 ])
         self.vessel_transform=transforms.ToTensor()
+        self.label_map={2:0,3:1}
     def __len__(self):
-        return len(self.annotations)
+        return len(self.split_list)
     
     def __getitem__(self, idx):
         '''
@@ -39,6 +40,7 @@ class stage23_Dataset(data.Dataset):
         crop_name = self.split_list[idx]
         data=self.annotation[crop_name]
         label=data['stage']
+        label=self.label_map[label]
         vessel_path=data["crop_vessel_path"]
         vessel=Image.open(vessel_path)
         vessel=self.vessel_resize(vessel)

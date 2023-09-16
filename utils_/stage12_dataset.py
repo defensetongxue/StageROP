@@ -15,7 +15,7 @@ class stage12_Dataset(data.Dataset):
             split_all = json.load(f)[split]
         self.split_list=[]
         for crop_name in split_all:
-            if self.annotation[crop_name]['Stage'] in [1,2]:
+            if self.annotation[crop_name]['stage'] in [1,2]:
                 self.split_list.append(crop_name)
 
         self.img_resize=transforms.Compose([ContrastEnhancement(),
@@ -33,7 +33,7 @@ class stage12_Dataset(data.Dataset):
             1:0,2:1
         }
     def __len__(self):
-        return len(self.annotations)
+        return len(self.split_list)
     
     def __getitem__(self, idx):
         '''
@@ -45,7 +45,7 @@ class stage12_Dataset(data.Dataset):
         # Load the image and label
         crop_name = self.split_list[idx]
         data=self.annotation[crop_name]
-        label=self.label_map(data['stage'])
+        label=self.label_map[data['stage']]
 
         image_path=data["crop_image_path"]
         image=Image.open(image_path)
