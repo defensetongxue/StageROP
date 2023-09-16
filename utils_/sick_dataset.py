@@ -11,12 +11,12 @@ class sick_Dataset(data.Dataset):
     '''
     def __init__(self, data_path,configs,split='train',split_name='mini'):
 
-        with open(os.path.join(os.path.join(data_path,'annotations', f"{split_name}.json"),'r')) as f:
+        with open(os.path.join(data_path, "annotations.json"),'r') as f:
             self.annotation=json.load(f)
         with open(os.path.join(data_path,'split',f"{split_name}.json"),'r') as f:
             self.split_list=json.load(f)[split]
         self.split=split
-        self.heatmap_resize=transforms.Resize((configs['img_resize']))
+        self.heatmap_resize=transforms.Resize((configs['image_resize']))
         self.heatmap_enhance=transforms.Compose([
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),

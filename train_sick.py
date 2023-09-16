@@ -39,16 +39,16 @@ lr_scheduler=get_lr_scheduler(optimizer,args.configs['lr_strategy'])
 last_epoch = args.configs['train']['begin_epoch']
 
 # Load the datasets
-train_dataset=CustomDatset(args.path_tar,'train',(300,300),(300,300),(300,300))
-val_dataset=CustomDatset(args.path_tar,'val',(300,300),(300,300),(300,300))
+train_dataset=CustomDatset(args.data_path,args.configs,split='train',split_name='mini')
+val_dataset=CustomDatset(args.data_path,args.configs,split='val',split_name='mini')
 # Create the data loaders
 train_loader = DataLoader(train_dataset, 
-                          batch_size=args.configs['batch_size'],
+                          batch_size=args.configs['train']['batch_size'],
                           shuffle=True, num_workers=args.configs['num_works'])
 val_loader = DataLoader(val_dataset,
-                        batch_size=args.configs['batch_size'],
+                        batch_size=args.configs['train']['batch_size'],
                         shuffle=False, num_workers=args.configs['num_works'])
-print("There is {} patch size".format(args.configs['batch_size']))
+print("There is {} patch size".format(args.configs["train"]['batch_size']))
 print(f"Train: {len(train_loader)}, Val: {len(val_loader)}")
 early_stop_counter = 0
 best_val_loss = float('inf')

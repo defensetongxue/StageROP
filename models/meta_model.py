@@ -7,7 +7,7 @@ def build_inceptionv3(config):
     os.environ['TORCH_HOME']=config["official_model_save"]
     model=models.inception_v3(pretrained=True)
     model.fc=nn.Linear(2048,config["num_classes"])
-    model.AuxLogits.fc=nn.Linear(768,config.num_classes)
+    model.AuxLogits.fc=nn.Linear(768,config["num_classes"])
 
     return model
 def build_vgg16(config):
