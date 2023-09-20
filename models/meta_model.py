@@ -17,7 +17,20 @@ def build_vgg16(config):
     model.classifier[6] = nn.Linear(4096,config["num_classes"])
 
     return model
-    
+def build_resnet18(config):
+    os.environ['TORCH_HOME'] = config["official_model_save"]
+    model = models.resnet18(pretrained=True)
+    model.fc = nn.Linear(512, config["num_classes"])  # ResNet18 has 512 out_features in its last layer
+    print(f"ResNet18 has {count_parameters(model)} parameters")
+    return model
+
+def build_resnet50(config):
+    os.environ['TORCH_HOME'] = config["official_model_save"]
+    model = models.resnet50(pretrained=True)
+    model.fc = nn.Linear(2048, config["num_classes"])  # ResNet50 has 2048 out_features in its last layer
+    print(f"ResNet50 has {count_parameters(model)} parameters")
+    return model
+
 def build_mobelnetv3_large(config):
     os.environ['TORCH_HOME'] = config["official_model_save"]
     model=models.mobilenet_v3_large(pretrained=True)
