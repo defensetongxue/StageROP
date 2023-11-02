@@ -1,4 +1,4 @@
-import torch
+import torch,math
 from torch import optim
 import numpy as np
 from PIL import Image
@@ -178,3 +178,22 @@ def visualize_and_save_landmarks(image_path,
     # Save the image with landmarks
     cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
     return preds,maxvals
+class lr_sche():
+    def __init__(self,config):
+        self.warmup_epochs=config["warmup_epochs"]
+        self.lr=config["lr"]
+        self.min_lr=config["min_lr"]
+        self.epochs=config['epochs']
+    def adjust_learning_rate(self,optimizer, epoch):
+        """Decay the learning rate with half-cycle cosine after warmup"""
+        if epoch < self.warmup_epochs:
+            lr = self.lr * epoch / self.warmup_epochs
+        else:
+            lr = self.min_lr + (self.lr  - self.min_lr) * 0.5 * \
+                (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (self.epochs - self.warmup_epochs)))
+        for param_group in optimizer.param_groups:
+            if "lr_scale" in param_group:
+                param_group["lr"] = lr * param_group["lr_scale"]
+            else:
+                param_group["lr"] = lr
+        return lr

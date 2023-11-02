@@ -52,7 +52,8 @@ def generate_crop(data_path,vessel_threhold=300,crop_width=300):
             elif data['stage'] in [1,2]:
                 selected_points=data_ridge["ridge_coordinate"]
             else:
-                raise ValueError(f"illegal stage for ridge {data['stage']}")
+                print(image_name,' ',data['stage'])
+                continue
             cnt=0
             for x,y in selected_points:
                 crop_name=f"{data['id']}_{str(cnt)}.jpg"
@@ -85,7 +86,10 @@ def generate_crop_split(data_path,split_name):
             split_dict[image_name.split('.')[0]]=split
     split_new={'train':[],'val':[],'test':[]}
     for crop_name in crop_annotation:
-        tar_split=split_dict[crop_name.split('_')[0]]
+        key=crop_name.split('_')[0]
+        if key not in split_dict:
+            continue
+        tar_split=split_dict[key]
         split_new[tar_split].append(crop_name)
     with open(os.path.join(data_path,'stage_rop','crop_split',f"{split_name}.json"),'w') as f:
         json.dump(split_new,f)
@@ -95,9 +99,9 @@ if __name__=='__main__':
 
     args=get_config()
     
-    if args.generate_crop:
-        generate_crop(args.data_path,
-                      vessel_threhold=args.configs['vessel_disctance_threshold'],
-                      crop_width=args.configs['crop_width'])
+    # if args.generate_crop:
+    #     generate_crop(args.data_path,
+    #                   vessel_threhold=args.configs['vessel_disctance_threshold'],
+    #                   crop_width=args.configs['crop_width'])
     if args.generate_split:
         generate_crop_split(args.data_path,split_name=args.split_name)

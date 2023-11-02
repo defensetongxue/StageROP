@@ -11,3 +11,4 @@ tmp.*
 .ipynb_checkpoints
 *.out
 ring.py
+tmp.py

@@ -14,9 +14,9 @@
         "method":"constant"
     },
     "train": {
-        "batch_size":2,
+        "batch_size":64,
         "begin_epoch": 0,
-        "end_epoch": 1,
+        "end_epoch": 500,
         "early_stop": 30,
         "optimizer": "adam",
         "lr": 0.0001,
