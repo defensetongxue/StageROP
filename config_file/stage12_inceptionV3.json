@@ -5,13 +5,16 @@
     "crop_width":300,
     "split_name":"mini",
     "model": {
-        "name": "inceptionv3",
+        "name": "mobelnetv3_small",
         "loss_func":"CrossEntropyLoss",
         "num_classes": 2,
         "official_model_save": "./experiments"
     },
     "lr_strategy":{
-        "method":"constant"
+        "warmup_epochs":10,
+        "lr":1e-4,
+        "min_lr":1e-6,
+        "epochs":200
     },
     "train": {
         "batch_size":64,

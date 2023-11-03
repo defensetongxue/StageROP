@@ -5,7 +5,7 @@ from PIL import Image
 from scipy.spatial import distance
 import cv2
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
-
+from sklearn.metrics import accuracy_score, roc_auc_score
 def to_device(x, device):
     if isinstance(x, tuple):
         return tuple(to_device(xi, device) for xi in x)
@@ -14,12 +14,13 @@ def to_device(x, device):
     else:
         return x.to(device)
 
-def train_epoch(model, optimizer, train_loader, loss_function, device):
+def train_epoch(model, optimizer, train_loader, loss_function, device,lr_scheduler,epoch):
     model.train()
     running_loss = 0.0
-
-    for inputs, targets, meta in train_loader:
+    batch_length=len(train_loader)
+    for data_iter_step,(inputs, targets, meta) in enumerate(train_loader):
         # Moving inputs and targets to the correct device
+        lr_scheduler.adjust_learning_rate(optimizer,epoch+(data_iter_step/batch_length))
         inputs = to_device(inputs, device)
         targets = to_device(targets, device)
 
@@ -27,6 +28,7 @@ def train_epoch(model, optimizer, train_loader, loss_function, device):
 
         # Assuming your model returns a tuple of outputs
         outputs = model(inputs)
+
         # Assuming your loss function can handle tuples of outputs and targets
         loss = loss_function(outputs, targets)
 
@@ -36,23 +38,45 @@ def train_epoch(model, optimizer, train_loader, loss_function, device):
         running_loss += loss.item()
     
     return running_loss / len(train_loader)
-
 def val_epoch(model, val_loader, loss_function, device):
     model.eval()
     running_loss = 0.0
+    all_predictions = []
+    all_targets = []
+    probs_list = []
 
     with torch.no_grad():
-        for inputs, targets,meta in val_loader:
+        for inputs, targets, _ in val_loader:
             inputs = to_device(inputs, device)
             targets = to_device(targets, device)
 
             outputs = model(inputs)
             loss = loss_function(outputs, targets)
-
             running_loss += loss.item()
 
-    return running_loss / len(val_loader)
+            # Convert model outputs to probabilities using softmax
+            probs = torch.softmax(outputs.cpu(), axis=1).numpy()
 
+            # Use argmax to get predictions from probabilities
+            predictions = np.argmax(probs, axis=1)
+
+            all_predictions.extend(predictions)
+            all_targets.extend(targets.cpu().numpy())
+            probs_list.extend(probs)
+    # Convert all predictions and targets into numpy arrays
+    all_predictions = np.array(all_predictions)
+    all_targets = np.array(all_targets)
+    probs = np.vstack(probs_list)
+    # Calculate accuracy
+    accuracy = accuracy_score(all_targets, all_predictions)
+
+    max_label = all_targets.max()
+    if max_label == 1:  # Binary classification
+        auc = roc_auc_score(all_targets, probs[:, 1])  # Assuming the second column is the probability of class 1
+    else:  # Multi-class classification
+        auc = roc_auc_score(all_targets, probs, multi_class='ovr')
+
+    return running_loss / len(val_loader), accuracy, auc
 
 def get_instance(module, class_name, *args, **kwargs):
     cls = getattr(module, class_name)
