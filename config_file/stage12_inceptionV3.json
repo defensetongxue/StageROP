@@ -7,7 +7,7 @@
     "model": {
         "name": "mobelnetv3_small",
         "loss_func":"CrossEntropyLoss",
-        "num_classes": 2,
+        "num_classes": 3,
         "official_model_save": "./experiments"
     },
     "lr_strategy":{

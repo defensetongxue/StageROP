@@ -58,7 +58,7 @@ print(f"Train: {len(train_loader)}, Val: {len(val_loader)}")
 early_stop_counter = 0
 best_val_loss = float('inf')
 total_epoches=args.configs['train']['end_epoch']
-
+best_auc=0
 # Training and validation loop
 for epoch in range(last_epoch,total_epoches):
 
@@ -69,8 +69,8 @@ for epoch in range(last_epoch,total_epoches):
             f" Lr: {optimizer.state_dict()['param_groups'][0]['lr']:.6f}" )
     # Update the learning rate if using ReduceLROnPlateau or CosineAnnealingLR
     # Early stopping
-    if val_loss < best_val_loss:
-        best_val_loss = val_loss
+    if auc > best_auc:
+        best_auc=auc
         early_stop_counter = 0
         torch.save(model.state_dict(),
                    os.path.join(args.save_dir,f"{args.split_name}_{args.save_name}"))

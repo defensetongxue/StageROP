@@ -62,7 +62,7 @@ def generate_crop(data_path,vessel_threhold=300,crop_width=300):
                 image_crop_path=os.path.join(data_path,'stage_rop','image_crop',crop_name)
                 crop_square(data['vessel_path'],x,y,width=crop_width,
                             save_path=vessel_crop_path)
-                crop_square(data['image_path'],x,y,width=crop_width,
+                crop_square(data['enhanced_path'],x,y,width=crop_width,
                             save_path=image_crop_path)
                 annotation_crop[crop_name]={
                     "crop_from":image_name,
@@ -99,9 +99,9 @@ if __name__=='__main__':
 
     args=get_config()
     
-    # if args.generate_crop:
-    #     generate_crop(args.data_path,
-    #                   vessel_threhold=args.configs['vessel_disctance_threshold'],
-    #                   crop_width=args.configs['crop_width'])
+    if args.generate_crop:
+        generate_crop(args.data_path,
+                      vessel_threhold=args.configs['vessel_disctance_threshold'],
+                      crop_width=args.configs['crop_width'])
     if args.generate_split:
         generate_crop_split(args.data_path,split_name=args.split_name)
