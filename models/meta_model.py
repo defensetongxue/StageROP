@@ -48,7 +48,7 @@ def build_efficientnet_b7(config):
     model=models.efficientnet_b7(pretrained=True)
     model.classifier[1]=nn.Linear(in_features=2560, out_features=config['num_classes'], bias=True)
     print(f"efficentnet b7 has {count_parameters(model)}")
-    # return model
+    return model
 if __name__ =='__main__':
     cfg={
         "official_model_save":"./experiments",

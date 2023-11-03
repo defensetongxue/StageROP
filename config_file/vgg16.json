@@ -1,26 +1,24 @@
 {
     "num_works": 12,
-    "image_resize":[328,328],
     "vessel_disctance_threshold":300,
     "crop_width":300,
-    "split_name":"mini",
     "model": {
-        "name": "mobelnetv3_small",
+        "name": "vgg16",
         "loss_func":"CrossEntropyLoss",
         "num_classes": 3,
         "official_model_save": "./experiments"
     },
     "lr_strategy":{
         "warmup_epochs":10,
-        "lr":1e-4,
+        "lr":5e-4,
         "min_lr":1e-6,
-        "epochs":200
+        "epochs":60
     },
     "train": {
-        "batch_size":64,
+        "batch_size":32,
         "begin_epoch": 0,
-        "end_epoch": 500,
-        "early_stop": 30,
+        "end_epoch": 60,
+        "early_stop": 100,
         "optimizer": "adam",
         "lr": 0.0001,
         "wd": 0.0,

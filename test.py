@@ -3,7 +3,7 @@ import os
 import torch
 from torchvision import transforms
 from config import get_config
-from utils_ import to_device, crop_square, ContrastEnhancement
+from utils_ import to_device, crop_square
 from models import build_model
 import numpy as np
 from PIL import Image
@@ -47,7 +47,6 @@ label_map = {1: 0, 2: 1}
 os.makedirs(os.path.join(args.result_path,
             'stage12_crop_image'), exist_ok=True)
 img_process = transforms.Compose([
-    ContrastEnhancement(),
     transforms.Resize(args.configs["image_resize"]),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.4485, 0.5278, 0.5477], std=[0.0910, 0.1079, 0.1301])])
