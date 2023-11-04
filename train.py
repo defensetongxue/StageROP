@@ -63,7 +63,7 @@ early_stop_counter = 0
 best_val_loss = float('inf')
 total_epoches=args.configs['train']['end_epoch']
 best_auc=0
-save_name=args.configs['model']['name']
+save_name=args.configs['model']['name']+'.pth'
 # Training and validation loop
 for epoch in range(last_epoch,total_epoches):
 

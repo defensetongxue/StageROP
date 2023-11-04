@@ -132,7 +132,7 @@ def get_lr_scheduler(optimizer, cfg):
 
 def crop_square(img_path, x, y, width, visual_path=None, save_path=None):
     # Open the image file
-    img = Image.open(img_path)
+    img = Image.open(img_path).resize((800,600))
     x,y=int(x),int(y)
     # Calculate the top left and bottom right points of the square to be cropped
     left = x - width
