@@ -13,7 +13,6 @@ class stage12_Dataset(data.Dataset):
             self.annotation=json.load(f)
         with open(os.path.join(data_path,'stage_rop','crop_split',f"{split_name}.json"),'r') as f:
             self.split_list=  json.load(f)[split]
-    
         self.preprocess=transforms.Compose([transforms.Resize((299,299))])
         self.img_enhance=transforms.Compose([
                 transforms.RandomHorizontalFlip(),
@@ -38,7 +37,8 @@ class stage12_Dataset(data.Dataset):
         crop_name = self.split_list[idx]
         data=self.annotation[crop_name]
         label=data['stage']-1
-
+        if label>1:
+            label=1
         image_path=data["crop_image_path"]
         image=Image.open(image_path)
         if self.split == "train" :
