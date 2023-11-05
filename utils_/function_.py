@@ -1,7 +1,7 @@
 import torch,math
 from torch import optim
 import numpy as np
-from PIL import Image
+from PIL import Image,ImageDraw
 from scipy.spatial import distance
 import cv2
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
@@ -129,34 +129,34 @@ def get_lr_scheduler(optimizer, cfg):
     
     return lr_scheduler
 
-
-def crop_square(img_path, x, y, width, visual_path=None, save_path=None):
+def crop_square(img_path, x, y, radius, save_path=None):
     # Open the image file
-    img = Image.open(img_path).resize((800,600))
-    x,y=int(x),int(y)
-    # Calculate the top left and bottom right points of the square to be cropped
-    left = x - width
-    top = y - width
-    right = x + width
-    bottom = y + width
-
-    # Convert image to OpenCV format (numpy array) for visualization
-    img_cv = np.array(img)
-
-    # Draw a point at (x, y)
-    img_cv = cv2.circle(img_cv, (x, y), radius=0, color=(0, 0, 255), thickness=-1)  # Red point
-
-    # Convert back to PIL format and save visualized image
-    if visual_path:
-        visual_img = Image.fromarray(img_cv)
-        visual_img.save(visual_path)
-
-    # Crop the image and save it
-    cropped_img = img.crop((left, top, right, bottom))
-    if save_path:
-        cropped_img.save(save_path)
+    img = Image.open(img_path)
+    x, y = int(x), int(y)
     
-    return cropped_img
+    # Calculate the top left and bottom right points of the square to be cropped
+    left = x - radius
+    top = y - radius
+    right = x + radius
+    bottom = y + radius
+
+    # Create a square crop of the image
+    square_crop = img.crop((left, top, right, bottom))
+
+    # Create a mask for the circular crop
+    mask = Image.new('L', (radius * 2, radius * 2), 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0, radius * 2, radius * 2), fill=255)
+
+    # Apply the mask to the square crop
+    circular_crop = Image.new('RGB', (radius * 2, radius * 2))
+    circular_crop.paste(square_crop, (0, 0), mask=mask)
+
+    # Save or return the circular cropped image
+    if save_path:
+        circular_crop.save(save_path)
+
+    return circular_crop
 
 def closest_points(ridge_list,vessel_list):
     array1=np.array(ridge_list)

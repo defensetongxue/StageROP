@@ -23,7 +23,7 @@ def get_config():
     
     # config file 
     parser.add_argument('--cfg', help='experiment configuration filename',
-                        default="./config_file/stage12_inceptionV3.json", type=str)
+                        default="./config_file/vgg16.json", type=str)
    
     args = parser.parse_args()
     # Merge args and config file 

@@ -14,11 +14,12 @@ class stage12_Dataset(data.Dataset):
         with open(os.path.join(data_path,'stage_rop','crop_split',f"{split_name}.json"),'r') as f:
             self.split_list=  json.load(f)[split]
     
-
+        self.preprocess=transforms.Compose([transforms.Resize((299,299))])
         self.img_enhance=transforms.Compose([
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
-                Fix_RandomRotation(),
+                # Fix_RandomRotation(),
+                transforms.RandomRotation(degrees=360)
                 ])
         self.img_transform=transforms.Compose([
             transforms.ToTensor(),

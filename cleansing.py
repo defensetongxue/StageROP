@@ -58,16 +58,13 @@ def generate_crop(data_path,vessel_threhold=300,crop_width=300):
             for x,y in selected_points:
                 crop_name=f"{data['id']}_{str(cnt)}.jpg"
                 cnt+=1
-                vessel_crop_path=os.path.join(data_path,'stage_rop','vessel_crop',crop_name)
                 image_crop_path=os.path.join(data_path,'stage_rop','image_crop',crop_name)
-                crop_square(data['vessel_path'],x,y,width=crop_width,
-                            save_path=vessel_crop_path)
-                crop_square(data['enhanced_path'],x,y,width=crop_width,
+                crop_square(data['enhanced_path'],x,y,radius=crop_width,
                             save_path=image_crop_path)
                 annotation_crop[crop_name]={
                     "crop_from":image_name,
                     "stage":data["stage"],
-                    "crop_vessel_path":vessel_crop_path,
+                    # "crop_vessel_path":vessel_crop_path,
                     "crop_image_path":image_crop_path
                 }
         
