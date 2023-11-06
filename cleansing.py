@@ -59,7 +59,7 @@ def generate_crop(data_path,vessel_threhold=300,crop_width=300):
                 crop_name=f"{data['id']}_{str(cnt)}.jpg"
                 cnt+=1
                 image_crop_path=os.path.join(data_path,'stage_rop','image_crop',crop_name)
-                crop_square(data['image_path'],x,y,radius=crop_width,
+                crop_square(data['enhanced_path'],x,y,radius=crop_width,
                             save_path=image_crop_path)
                 annotation_crop[crop_name]={
                     "crop_from":image_name,

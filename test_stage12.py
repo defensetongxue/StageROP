@@ -55,7 +55,7 @@ image_predictions = []
 
 visual_dir='./experiments/'+args.configs['model']['name']
 os.makedirs(visual_dir,exist_ok=True)
-
+os.system("rm -rf {visual_dir}/*")
 def draw_square(image_path, points, width, left_text, right_text, save_path, values=None, font_size=40, value_font_size=24):
     # Load the image
     img = Image.open(image_path)
@@ -81,9 +81,9 @@ def draw_square(image_path, points, width, left_text, right_text, save_path, val
             
             # Draw the values on the top left of the square
             if values is not None:
-                print(values[i])
+                # print(values[i])
                 value=round(values[i], 2)
-                print(value)
+                # print(value)
                 val_text = str(value)
                 # Calculate position for the text
                 val_x, val_y = top_left
@@ -116,7 +116,7 @@ with torch.no_grad():
         if len(candidate_list)>=12:
             candidate_list=random.sample(candidate_list,12)
         for cnt, (x, y) in enumerate(data['ridge']["ridge_coordinate"]):
-            crop_img = crop_square(data['image_path'], x, y, args.configs['crop_width']).convert('RGB')
+            crop_img = crop_square(data['enhanced_path'], x, y, args.configs['crop_width']).convert('RGB')
             processed_img = img_process(crop_img).unsqueeze(0)
             crop_img_list.append(processed_img)
         crop_img_list=torch.cat(crop_img_list,dim=0).to(device)
@@ -129,7 +129,7 @@ with torch.no_grad():
         selected_values = [val for idx, val in enumerate(vals) if predict[idx] == 1]
         # Call draw_square to visualize and save the image
         draw_square(
-            image_path=data['image_path'],
+            image_path=data['enhanced_path'],
             points=selected_points,
             width=args.configs['crop_width'],
             left_text=f"ZhangYuan: {split_list[image_name]['zy']}",
