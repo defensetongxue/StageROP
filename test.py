@@ -69,10 +69,12 @@ with torch.no_grad():
         crop_img_list = []
         
         # Process each coordinate to get the cropped image and its prediction
-        candidate_list=data['ridge']["ridge_coordinate"]
+        candidate_list=data['ridge_seg']["point_list"]
+        if len(candidate_list)==0:
+            continue
         if len(candidate_list)>=12:
             candidate_list=random.sample(candidate_list,12)
-        for cnt, (x, y) in enumerate(data['ridge']["ridge_coordinate"]):
+        for cnt, (x, y) in enumerate(candidate_list):
             crop_img = crop_square(data['enhanced_path'], x, y, args.configs['crop_width']).convert('RGB')
             processed_img = img_process(crop_img).unsqueeze(0)
             crop_img_list.append(processed_img)
@@ -88,7 +90,7 @@ with torch.no_grad():
         save_name=os.path.join(save_dir,image_name)
         save_value=[]
         for value in selected_values:
-            value=round(value,2)
+            value=round(float(value),2)
             save_value.append(value)
         save_point=[]
         for x,y in selected_points:
@@ -103,9 +105,12 @@ with torch.no_grad():
 # Convert lists to arrays for metric calculations
 image_labels = np.array(image_labels)
 image_predictions = np.array(image_predictions)
-acc = accuracy_score(image_labels, image_predictions)
-auc = roc_auc_score(image_labels, image_predictions) 
-print(f"Acc: {acc}, Auc: {auc}")
+# acc = accuracy_score(image_labels, image_predictions)
+# auc = roc_auc_score(image_labels, image_predictions) 
+# auc = roc_auc_score(image_labels, 0) 
+# print(f"Acc: {acc}, Auc: {auc}")
 
-with open(os.path.join(args.data_path, 'annotations.json'), 'w') as f:
+# with open(os.path.join(args.data_path, 'annotations.json'), 'w') as f:
+#     json.dump(data_dict,f)
+with open('./new.json', 'w') as f:
     json.dump(data_dict,f)
