@@ -12,26 +12,17 @@ class stage12_Dataset(data.Dataset):
         with open(os.path.join(data_path,'stage_rop','crop_annotations.json'),'r') as f:
             self.annotation=json.load(f)
         with open(os.path.join(data_path,'stage_rop','crop_split',f"{split_name}.json"),'r') as f:
-            split_all = json.load(f)[split]
-        self.split_list=[]
-        for crop_name in split_all:
-            if self.annotation[crop_name]['stage'] in [1,2]:
-                self.split_list.append(crop_name)
-
-        self.img_resize=transforms.Compose([ContrastEnhancement(),
-                                            transforms.Resize(configs["image_resize"])])
-        
+            self.split_list=  json.load(f)[split]
+        self.preprocess=transforms.Compose([transforms.Resize((299,299))])
         self.img_enhance=transforms.Compose([
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
-                Fix_RandomRotation(),
+                # Fix_RandomRotation(),
+                transforms.RandomRotation(degrees=360)
                 ])
         self.img_transform=transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.4485, 0.5278, 0.5477], std=[0.0910, 0.1079, 0.1301])])
-        self.label_map={
-            1:0,2:1
-        }
     def __len__(self):
         return len(self.split_list)
     
@@ -45,11 +36,11 @@ class stage12_Dataset(data.Dataset):
         # Load the image and label
         crop_name = self.split_list[idx]
         data=self.annotation[crop_name]
-        label=self.label_map[data['stage']]
-
+        label=data['stage']-1
+        # if label>1:
+        #     label=1
         image_path=data["crop_image_path"]
         image=Image.open(image_path)
-        image=self.img_resize(image)
         if self.split == "train" :
             image=self.img_enhance(image)
         image=self.img_transform(image)

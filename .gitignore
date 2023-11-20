@@ -12,3 +12,4 @@ tmp.*
 *.out
 ring.py
 tmp.py
+tmp

@@ -41,6 +41,8 @@ last_epoch = args.configs['train']['begin_epoch']
 # Load the datasets
 train_dataset=CustomDatset(args.data_path,args.configs,split='train',split_name=args.split_name)
 val_dataset=CustomDatset(args.data_path,args.configs,split='val',split_name=args.split_name)
+test_dataset=CustomDatset(args.data_path,args.configs,split='test',split_name=args.split_name)
+print(len(train_dataset),len(val_dataset),len(test_dataset))
 # Create the data loaders
 drop_last = False
 if args.configs['model']['name'] == 'inceptionv3' \
@@ -53,12 +55,16 @@ train_loader = DataLoader(train_dataset,
 val_loader = DataLoader(val_dataset,
                         batch_size=args.configs['train']['batch_size'],
                         shuffle=False, num_workers=args.configs['num_works'])
+test_loader = DataLoader(test_dataset,
+                        batch_size=args.configs['train']['batch_size'],
+                        shuffle=False, num_workers=args.configs['num_works'])
 print("There is {} patch size".format(args.configs["train"]['batch_size']))
 print(f"Train: {len(train_loader)}, Val: {len(val_loader)}")
 early_stop_counter = 0
 best_val_loss = float('inf')
 total_epoches=args.configs['train']['end_epoch']
-
+best_acc=0
+save_name=args.configs['model']['name']+'.pth'
 # Training and validation loop
 for epoch in range(last_epoch,total_epoches):
 
@@ -69,14 +75,21 @@ for epoch in range(last_epoch,total_epoches):
             f" Lr: {optimizer.state_dict()['param_groups'][0]['lr']:.6f}" )
     # Update the learning rate if using ReduceLROnPlateau or CosineAnnealingLR
     # Early stopping
-    if val_loss < best_val_loss:
-        best_val_loss = val_loss
+    if accuracy > best_acc:
+        best_acc=accuracy
         early_stop_counter = 0
         torch.save(model.state_dict(),
-                   os.path.join(args.save_dir,f"{args.split_name}_{args.save_name}"))
-        print("Model saved as {}".format(os.path.join(args.save_dir,f"{args.split_name}_{args.save_name}")))
+                   os.path.join(args.save_dir,f"{args.split_name}_{save_name}"))
+        print("Model saved as {}".format(os.path.join(args.save_dir,f"{args.split_name}_{save_name}")))
     else:
         early_stop_counter += 1
         if early_stop_counter >= args.configs['train']['early_stop']:
             print("Early stopping triggered")
             break
+_,test_acc,test_auc=val_epoch(model,test_loader,criterion,device)
+print(f"last epoch model: [test] : Acc: {test_acc}, Auc: {test_auc}")
+model.load_state_dict(
+    torch.load(os.path.join(args.save_dir,f"{args.split_name}_{save_name}")))
+model.eval()
+_,test_acc,test_auc=val_epoch(model,test_loader,criterion,device)
+print(f"best epoch model: [test] : Acc: {test_acc}, Auc: {test_auc}")
