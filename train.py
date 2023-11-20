@@ -42,6 +42,7 @@ last_epoch = args.configs['train']['begin_epoch']
 train_dataset=CustomDatset(args.data_path,args.configs,split='train',split_name=args.split_name)
 val_dataset=CustomDatset(args.data_path,args.configs,split='val',split_name=args.split_name)
 test_dataset=CustomDatset(args.data_path,args.configs,split='test',split_name=args.split_name)
+print(len(train_dataset),len(val_dataset),len(test_dataset))
 # Create the data loaders
 drop_last = False
 if args.configs['model']['name'] == 'inceptionv3' \
@@ -62,7 +63,7 @@ print(f"Train: {len(train_loader)}, Val: {len(val_loader)}")
 early_stop_counter = 0
 best_val_loss = float('inf')
 total_epoches=args.configs['train']['end_epoch']
-best_auc=0
+best_acc=0
 save_name=args.configs['model']['name']+'.pth'
 # Training and validation loop
 for epoch in range(last_epoch,total_epoches):
@@ -74,8 +75,8 @@ for epoch in range(last_epoch,total_epoches):
             f" Lr: {optimizer.state_dict()['param_groups'][0]['lr']:.6f}" )
     # Update the learning rate if using ReduceLROnPlateau or CosineAnnealingLR
     # Early stopping
-    if auc > best_auc:
-        best_auc=auc
+    if accuracy > best_acc:
+        best_acc=accuracy
         early_stop_counter = 0
         torch.save(model.state_dict(),
                    os.path.join(args.save_dir,f"{args.split_name}_{save_name}"))

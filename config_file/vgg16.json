@@ -1,7 +1,7 @@
 {
     "num_works": 12,
-    "vessel_disctance_threshold":300,
-    "crop_width":200,
+    "vessel_disctance_threshold":100,
+    "crop_width":250,
     "model": {
         "name": "vgg16",
         "smoothing":0.1,

@@ -51,15 +51,17 @@ def generate_crop(data_path,vessel_threhold=300,crop_width=300):
                                            l=vessel_threhold)
             elif data['stage'] in [1,2]:
                 selected_points=data_ridge["ridge_coordinate"]
+            elif data['stage']==0:
+                continue
             else:
                 print(image_name,' ',data['stage'])
                 continue
             cnt=0
             for x,y in selected_points:
-                crop_name=f"{data['id']}_{str(cnt)}.jpg"
+                crop_name=f"{image_name[:-4]}_{str(cnt)}.jpg"
                 cnt+=1
                 image_crop_path=os.path.join(data_path,'stage_rop','image_crop',crop_name)
-                crop_square(data['enhanced_path'],x,y,radius=crop_width,
+                crop_square(data['image_path'],x,y,radius=crop_width,
                             save_path=image_crop_path)
                 annotation_crop[crop_name]={
                     "crop_from":image_name,

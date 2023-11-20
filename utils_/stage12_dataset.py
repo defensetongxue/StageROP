@@ -37,8 +37,8 @@ class stage12_Dataset(data.Dataset):
         crop_name = self.split_list[idx]
         data=self.annotation[crop_name]
         label=data['stage']-1
-        if label>1:
-            label=1
+        # if label>1:
+        #     label=1
         image_path=data["crop_image_path"]
         image=Image.open(image_path)
         if self.split == "train" :
